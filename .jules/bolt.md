@@ -1,0 +1,2 @@
+## 2026-03-05 - Streaming Render Thrashing via v-html
+In Vue.js, inline function calls like `sanitizeMarkdown(parse(text))` inside `v-html` bindings of a `v-for` loop will execute on every single render tick. When streaming LLM text token-by-token, this causes severe CPU thrashing. Implementing an LRU cache mitigates this, but **crucially**, you must bypass caching for the actively streaming message (where text changes every frame) and only cache the final, completed message string to prevent blowing out the cache capacity with intermediate token states.

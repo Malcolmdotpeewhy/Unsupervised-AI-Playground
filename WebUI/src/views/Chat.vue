@@ -54,11 +54,7 @@
             />
             <div
               :class="textInference.fontSizeClass"
-              v-html="
-                sanitizeMarkdown(
-                  parse(message.parts.find((part) => part.type === 'text')?.text ?? '') as string,
-                )
-              "
+              v-html="getParsedMarkdown(message.id + '-user', message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
             ></div>
             <button
               class="flex items-center gap-1 text-xs text-muted-foreground mt-1"
@@ -162,21 +158,11 @@
                 <div
                   v-if="showThinkingTextPerMessageId[message.id]"
                   class="border-l-2 border-border pl-4 text-muted-foreground"
-                  v-html="
-                    sanitizeMarkdown(
-                      parse(
-                        message.parts.find((part) => part.type === 'reasoning')?.text ?? '',
-                      ) as string,
-                    )
-                  "
+                  v-html="getParsedMarkdown(message.id + '-reasoning', message.parts.find((part) => part.type === 'reasoning')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
                 ></div>
               </template>
               <div
-                v-html="
-                  sanitizeMarkdown(
-                    parse(message.parts.find((part) => part.type === 'text')?.text ?? '') as string,
-                  )
-                "
+                v-html="getParsedMarkdown(message.id + '-text', message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
               ></div>
 
               <!-- Render tool parts -->
@@ -348,6 +334,36 @@ const showThinkingTextPerMessageId = reactive<Record<string, boolean>>({})
 const showRagSourcePerMessageId = reactive<Record<string, boolean>>({})
 
 const ragSourcePerMessageId = reactive<Record<string, string>>({})
+
+// Markdown parsing cache to prevent render thrashing during streaming
+// We only want to cache fully generated messages (isProcessing = false)
+const markdownCache = new Map<string, string>()
+const MAX_CACHE_SIZE = 200
+
+function getParsedMarkdown(cacheKey: string, text: string, isProcessing: boolean): string {
+  if (!text) return ''
+
+  // Try to return a cached result if the message is completely generated
+  // If the message is actively streaming (processing), we bypass the cache entirely to avoid storing every intermediate string state
+  if (!isProcessing && markdownCache.has(cacheKey + text)) {
+    return markdownCache.get(cacheKey + text)!
+  }
+
+  const parsed = sanitizeMarkdown(parse(text) as string)
+
+  // Only insert into the cache if the message finished generating.
+  if (!isProcessing) {
+    if (markdownCache.size >= MAX_CACHE_SIZE) {
+      const firstKey = markdownCache.keys().next().value
+      if (firstKey !== undefined) {
+        markdownCache.delete(firstKey)
+      }
+    }
+    markdownCache.set(cacheKey + text, parsed)
+  }
+
+  return parsed
+}
 
 // Track progress for active tool calls
 const toolProgressMap = reactive<
