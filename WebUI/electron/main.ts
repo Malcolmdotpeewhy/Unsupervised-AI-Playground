@@ -276,7 +276,7 @@ app.on('quit', async () => {
 app.on('window-all-closed', async () => {
   try {
     await serviceRegistry?.stopAllServices()
-  } catch { }
+  } catch {}
   if (process.platform !== 'darwin') {
     app.quit()
     win = null
@@ -374,15 +374,15 @@ function initEventHandle() {
   ipcMain.handle('restorePathsSettings', (_event: IpcMainInvokeEvent) => {
     const paths = app.isPackaged
       ? {
-        ggufLLM: './resources/models/LLM/ggufLLM',
-        openvinoLLM: './resources/models/LLM/openvino',
-        embedding: './resources/models/LLM/embedding',
-      }
+          ggufLLM: './resources/models/LLM/ggufLLM',
+          openvinoLLM: './resources/models/LLM/openvino',
+          embedding: './resources/models/LLM/embedding',
+        }
       : {
-        ggufLLM: '../models/LLM/ggufLLM',
-        openvinoLLM: '../models/LLM/openvino',
-        embedding: '../models/LLM/embedding',
-      }
+          ggufLLM: '../models/LLM/ggufLLM',
+          openvinoLLM: '../models/LLM/openvino',
+          embedding: '../models/LLM/embedding',
+        }
     pathsManager.updateModelPaths(paths)
   })
 
@@ -1129,9 +1129,9 @@ function initEventHandle() {
     const imageSubPath =
       backend === 'comfyui'
         ? path.join(
-          imageUrl.searchParams.get('subfolder') ?? '',
-          imageUrl.searchParams.get('filename') ?? '',
-        )
+            imageUrl.searchParams.get('subfolder') ?? '',
+            imageUrl.searchParams.get('filename') ?? '',
+          )
         : imageUrl.pathname
     return path.join(mediaDir, imageSubPath)
   }
