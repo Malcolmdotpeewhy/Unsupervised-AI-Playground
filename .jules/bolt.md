@@ -1,0 +1,3 @@
+## 2024-05-28 - Vue Template Render Thrashing in v-for Loops
+**Learning:** Functions called inside `v-html` or template interpolations within `v-for` loops (like `sanitizeMarkdown(parse(text))`) will re-execute for *every* item in the loop every time the array updates. This is especially problematic in LLM streaming, where the last message's array updates multiple times per second, causing O(N) expensive markdown parsing ops every tick.
+**Action:** Always memoize expensive formatting functions called in Vue templates, especially inside loops. A simple `Map` keyed by the raw input string works exceptionally well for message parsing because LLM outputs append to strings, making previous message text stable and instantly cacheable.
