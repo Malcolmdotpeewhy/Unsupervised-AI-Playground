@@ -2,7 +2,9 @@
   "type": "comfy",
   "name": "Pro Image",
   "displayPriority": 300,
-  "tags": ["Flux.2-Klein"],
+  "tags": [
+    "Flux.2-Klein"
+  ],
   "description": "Precisely generate images, with text and adherence to prompt using Flux.2-Klein",
   "backend": "comfyui",
   "category": "create-images",
@@ -11,14 +13,42 @@
   "toolInstructions": "Generate a detailed, descriptive prompt that includes: subject details, composition, style, lighting, colors, mood, and quality tags. Flux.1-Schnell produces very high quality images with excellent prompt understanding, so be specific about artistic style, composition, and visual details. Even if the user requests something simple like 'a landscape', expand it to a full prompt like 'a breathtaking mountain landscape at sunset, dramatic clouds, golden hour lighting, cinematic composition, highly detailed, photorealistic, 8k, professional photography, wide angle view'.",
   "resolutionConfig": {
     "megapixels": [
-      { "label": "0.25", "totalPixels": 262144 },
-      { "label": "0.5", "totalPixels": 495616 },
-      { "label": "0.8", "totalPixels": 802816 },
-      { "label": "1.0", "totalPixels": 1048576 },
-      { "label": "1.2", "totalPixels": 1254400 },
-      { "label": "1.5", "totalPixels": 1557504 }
+      {
+        "label": "0.25",
+        "totalPixels": 262144
+      },
+      {
+        "label": "0.5",
+        "totalPixels": 495616
+      },
+      {
+        "label": "0.8",
+        "totalPixels": 802816
+      },
+      {
+        "label": "1.0",
+        "totalPixels": 1048576
+      },
+      {
+        "label": "1.2",
+        "totalPixels": 1254400
+      },
+      {
+        "label": "1.5",
+        "totalPixels": 1557504
+      }
     ],
-    "aspectRatios": ["21/9", "16/9", "3/2", "4/3", "1/1", "3/4", "2/3", "9/16", "9/21"]
+    "aspectRatios": [
+      "21/9",
+      "16/9",
+      "3/2",
+      "4/3",
+      "1/1",
+      "3/4",
+      "2/3",
+      "9/16",
+      "9/21"
+    ]
   },
   "requiredCustomNodes": [
     "BadCafeCode/execution-inversion-demo-comfyui@d9eebfaa1a6a33067e8c9108ef093b48279c4cbb",
@@ -37,18 +67,6 @@
     {
       "type": "vae",
       "model": "Comfy-Org/vae-text-encorder-for-flux-klein-4b/split_files/vae/flux2-vae.safetensors"
-    },
-    {
-      "type": "nsfwdetector",
-      "model": "AdamCodd/vit-base-nsfw-detector/config.json"
-    },
-    {
-      "type": "nsfwdetector",
-      "model": "AdamCodd/vit-base-nsfw-detector/model.safetensors"
-    },
-    {
-      "type": "nsfwdetector",
-      "model": "AdamCodd/vit-base-nsfw-detector/preprocessor_config.json"
     }
   ],
   "settings": [
@@ -117,18 +135,6 @@
       "settingName": "negativePrompt"
     },
     {
-      "type": "number",
-      "label": "Safety Checker Strength",
-      "nodeTitle": "SafetyCheckerStrength",
-      "nodeInput": "b",
-      "min": 0,
-      "max": 1,
-      "step": 0.05,
-      "defaultValue": 0.5,
-      "displayed": true,
-      "modifiable": true
-    },
-    {
       "type": "boolean",
       "label": "Show Preview",
       "displayed": true,
@@ -171,7 +177,10 @@
     "4": {
       "inputs": {
         "text": "cheese",
-        "clip": ["2", 0]
+        "clip": [
+          "2",
+          0
+        ]
       },
       "class_type": "CLIPTextEncode",
       "_meta": {
@@ -180,7 +189,10 @@
     },
     "5": {
       "inputs": {
-        "conditioning": ["4", 0]
+        "conditioning": [
+          "4",
+          0
+        ]
       },
       "class_type": "ConditioningZeroOut",
       "_meta": {
@@ -190,9 +202,18 @@
     "6": {
       "inputs": {
         "cfg": 1.1,
-        "model": ["1", 0],
-        "positive": ["4", 0],
-        "negative": ["5", 0]
+        "model": [
+          "1",
+          0
+        ],
+        "positive": [
+          "4",
+          0
+        ],
+        "negative": [
+          "5",
+          0
+        ]
       },
       "class_type": "CFGGuider",
       "_meta": {
@@ -202,8 +223,14 @@
     "7": {
       "inputs": {
         "steps": 4,
-        "width": ["16", 0],
-        "height": ["17", 0]
+        "width": [
+          "16",
+          0
+        ],
+        "height": [
+          "17",
+          0
+        ]
       },
       "class_type": "Flux2Scheduler",
       "_meta": {
@@ -212,8 +239,14 @@
     },
     "8": {
       "inputs": {
-        "width": ["16", 0],
-        "height": ["17", 0],
+        "width": [
+          "16",
+          0
+        ],
+        "height": [
+          "17",
+          0
+        ],
         "batch_size": 1
       },
       "class_type": "EmptyFlux2LatentImage",
@@ -241,11 +274,26 @@
     },
     "11": {
       "inputs": {
-        "noise": ["9", 0],
-        "guider": ["6", 0],
-        "sampler": ["10", 0],
-        "sigmas": ["7", 0],
-        "latent_image": ["8", 0]
+        "noise": [
+          "9",
+          0
+        ],
+        "guider": [
+          "6",
+          0
+        ],
+        "sampler": [
+          "10",
+          0
+        ],
+        "sigmas": [
+          "7",
+          0
+        ],
+        "latent_image": [
+          "8",
+          0
+        ]
       },
       "class_type": "SamplerCustomAdvanced",
       "_meta": {
@@ -254,8 +302,14 @@
     },
     "12": {
       "inputs": {
-        "samples": ["11", 0],
-        "vae": ["3", 0]
+        "samples": [
+          "11",
+          0
+        ],
+        "vae": [
+          "3",
+          0
+        ]
       },
       "class_type": "VAEDecode",
       "_meta": {
@@ -265,33 +319,14 @@
     "13": {
       "inputs": {
         "filename_prefix": "AIPG_Image",
-        "images": ["98", 0]
+        "images": [
+          "12",
+          0
+        ]
       },
       "class_type": "SaveImage",
       "_meta": {
         "title": "Save Image"
-      }
-    },
-    "98": {
-      "inputs": {
-        "threshold": ["99", 0],
-        "cuda": false,
-        "image": ["12", 0]
-      },
-      "class_type": "SafetyChecker",
-      "_meta": {
-        "title": "Intercept NSFW Outputs"
-      }
-    },
-    "99": {
-      "inputs": {
-        "op": "Sub",
-        "a": 1,
-        "b": 0.5
-      },
-      "class_type": "CM_FloatBinaryOperation",
-      "_meta": {
-        "title": "SafetyCheckerStrength"
       }
     },
     "16": {

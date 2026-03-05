@@ -2,13 +2,19 @@
   "type": "comfy",
   "name": "Sketch to Photo",
   "displayPriority": 700,
-  "tags": ["JuggernautXL", "ControlNet", "1024x1024"],
+  "tags": [
+    "JuggernautXL",
+    "ControlNet",
+    "1024x1024"
+  ],
   "description": "Turn rough sketches into stunning photos. Load a sketch and describe the location, weather and environment",
   "backend": "comfyui",
   "category": "edit-images",
   "toolCategory": "edit-images",
   "toolInstructions": "Use this workflow when the user wants to turn a sketch or line drawing into a photorealistic image. Provide a detailed prompt describing the scene, environment, lighting, weather, and mood. The sketch structure will be preserved via ControlNet edge detection while the prompt guides the photorealistic rendering. For example, if the user provides a sketch of a house, expand the prompt to 'a cozy suburban house with a garden, bright sunny day, blue sky with white clouds, green lawn, photorealistic, 8k, highly detailed'. Prefer the Fast variant unless higher quality is requested.",
-  "requiredCustomNodes": ["evanspearman/ComfyMath@939bb813f1c0ace959b62f20bb2da47190c4e211"],
+  "requiredCustomNodes": [
+    "evanspearman/ComfyMath@939bb813f1c0ace959b62f20bb2da47190c4e211"
+  ],
   "requiredPythonPackages": [],
   "requiredModels": [
     {
@@ -18,18 +24,6 @@
     {
       "type": "controlNet",
       "model": "stabilityai/control-lora/control-LoRAs-rank128/control-lora-canny-rank128.safetensors"
-    },
-    {
-      "type": "nsfwdetector",
-      "model": "AdamCodd/vit-base-nsfw-detector/config.json"
-    },
-    {
-      "type": "nsfwdetector",
-      "model": "AdamCodd/vit-base-nsfw-detector/model.safetensors"
-    },
-    {
-      "type": "nsfwdetector",
-      "model": "AdamCodd/vit-base-nsfw-detector/preprocessor_config.json"
     }
   ],
   "settings": [
@@ -98,33 +92,13 @@
       "settingName": "negativePrompt"
     },
     {
-      "type": "boolean",
-      "label": "Safety Check",
-      "displayed": false,
-      "modifiable": false,
-      "defaultValue": true,
-      "settingName": "safetyCheck"
-    },
-    {
-      "type": "number",
-      "label": "Safety Checker Strength",
-      "nodeTitle": "SafetyCheckerStrength",
-      "nodeInput": "b",
-      "min": 0,
-      "max": 1,
-      "step": 0.05,
-      "defaultValue": 0.5,
-      "displayed": true,
-      "modifiable": true
-    },
-    {
       "type": "number",
       "label": "Canny - Low Threshold",
       "displayed": true,
       "modifiable": true,
       "defaultValue": 0.2,
-      "min": 0.0,
-      "max": 1.0,
+      "min": 0,
+      "max": 1,
       "step": 0.05,
       "nodeTitle": "Canny",
       "nodeInput": "low_threshold"
@@ -135,8 +109,8 @@
       "displayed": true,
       "modifiable": true,
       "defaultValue": 0.6,
-      "min": 0.0,
-      "max": 1.0,
+      "min": 0,
+      "max": 1,
       "step": 0.05,
       "nodeTitle": "Canny",
       "nodeInput": "high_threshold"
@@ -147,8 +121,8 @@
       "displayed": true,
       "modifiable": true,
       "defaultValue": 1,
-      "min": 0.0,
-      "max": 1.0,
+      "min": 0,
+      "max": 1,
       "step": 0.1,
       "nodeTitle": "Apply ControlNet",
       "nodeInput": "strength"
@@ -198,10 +172,22 @@
               "cfg": 1.5,
               "sampler_name": "lcm",
               "scheduler": "simple",
-              "model": ["19", 0],
-              "positive": ["25", 0],
-              "negative": ["25", 1],
-              "latent_image": ["5", 0]
+              "model": [
+                "19",
+                0
+              ],
+              "positive": [
+                "25",
+                0
+              ],
+              "negative": [
+                "25",
+                1
+              ],
+              "latent_image": [
+                "5",
+                0
+              ]
             }
           },
           "19": {
@@ -209,8 +195,14 @@
               "lora_name": "latent-consistency---lcm-lora-sdxl\\pytorch_lora_weights.safetensors",
               "strength_model": 1,
               "strength_clip": 1,
-              "model": ["26", 0],
-              "clip": ["26", 1]
+              "model": [
+                "26",
+                0
+              ],
+              "clip": [
+                "26",
+                1
+              ]
             },
             "class_type": "LoraLoader",
             "_meta": {
@@ -218,7 +210,10 @@
             }
           }
         },
-        "tags": ["SDXL", "4-steps"]
+        "tags": [
+          "SDXL",
+          "4-steps"
+        ]
       }
     },
     {
@@ -235,10 +230,22 @@
         "sampler_name": "dpmpp_2m_sde",
         "scheduler": "karras",
         "denoise": 1,
-        "model": ["26", 0],
-        "positive": ["25", 0],
-        "negative": ["25", 1],
-        "latent_image": ["5", 0]
+        "model": [
+          "26",
+          0
+        ],
+        "positive": [
+          "25",
+          0
+        ],
+        "negative": [
+          "25",
+          1
+        ],
+        "latent_image": [
+          "5",
+          0
+        ]
       },
       "class_type": "KSampler",
       "_meta": {
@@ -259,7 +266,10 @@
     "6": {
       "inputs": {
         "text": "a rose",
-        "clip": ["26", 1]
+        "clip": [
+          "26",
+          1
+        ]
       },
       "class_type": "CLIPTextEncode",
       "_meta": {
@@ -269,7 +279,10 @@
     "7": {
       "inputs": {
         "text": "nsfw",
-        "clip": ["26", 1]
+        "clip": [
+          "26",
+          1
+        ]
       },
       "class_type": "CLIPTextEncode",
       "_meta": {
@@ -278,8 +291,14 @@
     },
     "8": {
       "inputs": {
-        "samples": ["3", 0],
-        "vae": ["26", 2]
+        "samples": [
+          "3",
+          0
+        ],
+        "vae": [
+          "26",
+          2
+        ]
       },
       "class_type": "VAEDecode",
       "_meta": {
@@ -289,33 +308,14 @@
     "9": {
       "inputs": {
         "filename_prefix": "AIPG_Image",
-        "images": ["98", 0]
+        "images": [
+          "8",
+          0
+        ]
       },
       "class_type": "SaveImage",
       "_meta": {
         "title": "Save Image"
-      }
-    },
-    "98": {
-      "inputs": {
-        "threshold": ["99", 0],
-        "cuda": false,
-        "image": ["8", 0]
-      },
-      "class_type": "SafetyChecker",
-      "_meta": {
-        "title": "Intercept NSFW Outputs"
-      }
-    },
-    "99": {
-      "inputs": {
-        "op": "Sub",
-        "a": 1,
-        "b": 0.5
-      },
-      "class_type": "CM_FloatBinaryOperation",
-      "_meta": {
-        "title": "SafetyCheckerStrength"
       }
     },
     "15": {
@@ -329,7 +329,10 @@
     },
     "16": {
       "inputs": {
-        "images": ["20", 0]
+        "images": [
+          "20",
+          0
+        ]
       },
       "class_type": "PreviewImage",
       "_meta": {
@@ -349,7 +352,10 @@
       "inputs": {
         "low_threshold": 0.14,
         "high_threshold": 0.4,
-        "image": ["15", 0]
+        "image": [
+          "15",
+          0
+        ]
       },
       "class_type": "Canny",
       "_meta": {
@@ -361,11 +367,26 @@
         "strength": 1,
         "start_percent": 0,
         "end_percent": 1,
-        "positive": ["6", 0],
-        "negative": ["7", 0],
-        "control_net": ["17", 0],
-        "image": ["20", 0],
-        "vae": ["26", 2]
+        "positive": [
+          "6",
+          0
+        ],
+        "negative": [
+          "7",
+          0
+        ],
+        "control_net": [
+          "17",
+          0
+        ],
+        "image": [
+          "20",
+          0
+        ],
+        "vae": [
+          "26",
+          2
+        ]
       },
       "class_type": "ControlNetApplyAdvanced",
       "_meta": {

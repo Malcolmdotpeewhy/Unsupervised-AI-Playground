@@ -10,14 +10,6 @@ import service_config
 from web_request_bodies import ComfyUICustomNodesGithubRepoId
 
 
-def is_comfyUI_installed() -> bool:
-    return os.path.exists(service_config.comfy_ui_root_path)
-
-
-def is_git_installed() -> bool:
-    return os.path.exists(service_config.git.get("rootDirPath"))
-
-
 def _install_git_repo(git_repo_url: str, target_dir: str):
     try:
         utils.remove_existing_filesystem_resource(target_dir)

@@ -33,8 +33,6 @@ import {
   protocol,
   screen,
   shell,
-  utilityProcess,
-  UtilityProcess,
 } from 'electron'
 import path from 'node:path'
 import fs from 'fs'
@@ -54,9 +52,8 @@ import {
 import { filterPartnerPresets, updateIntelPresets } from './subprocesses/updateIntelPresets.ts'
 import { getGitHubRepoUrl, resolveBackendVersion, resolveModels } from './remoteUpdates.ts'
 import * as comfyuiTools from './subprocesses/comfyuiTools'
-import { externalResourcesDir, getMediaDir } from './util.ts'
+import { getMediaDir } from './util.ts'
 import type { ModelPaths } from '@/assets/js/store/models.ts'
-import type { IndexedDocument, EmbedInquiry } from '@/assets/js/store/textInference.ts'
 import { BackendServiceName } from '@/assets/js/store/backendServices.ts'
 import z from 'zod'
 
@@ -84,7 +81,6 @@ let win: BrowserWindow | null
 let serviceRegistry: ApiServiceRegistryImpl | null = null
 const mediaDir = getMediaDir()
 fs.mkdirSync(mediaDir, { recursive: true })
-let langchainChild: UtilityProcess | null = null
 
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
@@ -269,85 +265,6 @@ async function createWindow() {
   return win
 }
 
-function spawnLangchainUtilityProcess() {
-  if (langchainChild) {
-    appLogger.info('Langchain utility process already running', 'electron-backend')
-    return
-  }
-  appLogger.info('Starting langchain utility process', 'electron-backend')
-  try {
-    appLogger.info(path.join(__dirname, '../langchain/langchain.js'), 'electron-backend')
-
-    langchainChild = utilityProcess.fork(
-      path.join(__dirname, '../langchain/langchain.js'),
-      undefined,
-      { stdio: 'pipe' },
-    )
-    langchainChild.stdout?.on('data', (data) => {
-      appLogger.info(data.toString(), 'langchain')
-    })
-    langchainChild.stderr?.on('data', (data) => {
-      appLogger.error(data.toString(), 'langchain')
-    })
-    langchainChild.postMessage({
-      type: 'init',
-      embeddingCachePath: path.join(externalResourcesDir(), 'embeddingCache'),
-    })
-
-    langchainChild.on('message', (message) => {
-      appLogger.info(
-        `Message from langchain utility process: Type ${message.type}`,
-        'electron-backend',
-      )
-    })
-
-    langchainChild.on('error', (error) => {
-      appLogger.error(`Error from langchain utility process: ${error}`, 'electron-backend')
-    })
-
-    langchainChild.on('exit', (code) => {
-      if (code !== 0) {
-        appLogger.info(`Langchain utility process exited with code ${code}`, 'electron-backend')
-      }
-      setTimeout(() => {
-        spawnLangchainUtilityProcess()
-      }, 1000)
-      langchainChild = null
-    })
-  } catch (error) {
-    appLogger.error(`Error starting langchain utility process: ${error}`, 'electron-backend')
-  }
-}
-
-function handleUtilityFunction<T, R>(
-  eventType: string,
-  child: UtilityProcess | null,
-  args: T,
-): Promise<R> {
-  if (!child) {
-    throw new Error('Utility process is not running')
-  }
-  return new Promise((resolve, reject) => {
-    const messageHandler = (message: { type: string; returnValue: R }) => {
-      if (message.type === eventType) {
-        child.off('message', messageHandler)
-        resolve(message.returnValue)
-      }
-    }
-
-    const errorHandler = (type: string, location: string, report: string) => {
-      const error = new Error(`Error in ${type} at ${location}: ${report}`)
-      child.off('error', errorHandler)
-      reject(error)
-    }
-
-    child.on('message', messageHandler)
-    child.on('error', errorHandler)
-
-    child.postMessage({ type: eventType, args: args })
-  })
-}
-
 app.on('quit', async () => {
   if (singleInstanceLock) {
     app.releaseSingleInstanceLock()
@@ -359,7 +276,7 @@ app.on('quit', async () => {
 app.on('window-all-closed', async () => {
   try {
     await serviceRegistry?.stopAllServices()
-  } catch {}
+  } catch { }
   if (process.platform !== 'darwin') {
     app.quit()
     win = null
@@ -457,15 +374,15 @@ function initEventHandle() {
   ipcMain.handle('restorePathsSettings', (_event: IpcMainInvokeEvent) => {
     const paths = app.isPackaged
       ? {
-          ggufLLM: './resources/models/LLM/ggufLLM',
-          openvinoLLM: './resources/models/LLM/openvino',
-          embedding: './resources/models/LLM/embedding',
-        }
+        ggufLLM: './resources/models/LLM/ggufLLM',
+        openvinoLLM: './resources/models/LLM/openvino',
+        embedding: './resources/models/LLM/embedding',
+      }
       : {
-          ggufLLM: '../models/LLM/ggufLLM',
-          openvinoLLM: '../models/LLM/openvino',
-          embedding: '../models/LLM/embedding',
-        }
+        ggufLLM: '../models/LLM/ggufLLM',
+        openvinoLLM: '../models/LLM/openvino',
+        embedding: '../models/LLM/embedding',
+      }
     pathsManager.updateModelPaths(paths)
   })
 
@@ -605,22 +522,6 @@ function initEventHandle() {
 
   ipcMain.handle('getDownloadedEmbeddingModels', (_event) => {
     return pathsManager.scanEmbedding()
-  })
-
-  ipcMain.handle('addDocumentToRAGList', (_event, document: IndexedDocument) => {
-    return handleUtilityFunction<IndexedDocument, IndexedDocument>(
-      'addDocumentToRAGList',
-      langchainChild,
-      document,
-    )
-  })
-
-  ipcMain.handle('embedInputUsingRag', (_event, embedInquiry: EmbedInquiry) => {
-    return handleUtilityFunction<EmbedInquiry, KVObject>(
-      'embedInputUsingRag',
-      langchainChild,
-      embedInquiry,
-    )
   })
 
   ipcMain.on('openDevTools', () => {
@@ -1228,9 +1129,9 @@ function initEventHandle() {
     const imageSubPath =
       backend === 'comfyui'
         ? path.join(
-            imageUrl.searchParams.get('subfolder') ?? '',
-            imageUrl.searchParams.get('filename') ?? '',
-          )
+          imageUrl.searchParams.get('subfolder') ?? '',
+          imageUrl.searchParams.get('filename') ?? '',
+        )
         : imageUrl.pathname
     return path.join(mediaDir, imageSubPath)
   }
@@ -1378,6 +1279,5 @@ app.whenReady().then(async () => {
     })
     const window = await createWindow()
     await initServiceRegistry(window, settings)
-    spawnLangchainUtilityProcess()
   }
 })

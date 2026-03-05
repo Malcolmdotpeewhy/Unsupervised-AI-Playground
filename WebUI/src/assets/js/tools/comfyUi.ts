@@ -24,7 +24,7 @@ const globalDefaultSettings = {
   inferenceSteps: 6,
   resolution: '704x384',
   batchSize: 4,
-  negativePrompt: 'nsfw',
+  negativePrompt: '',
 }
 
 // Chat backends to be stopped to free resources for image generation

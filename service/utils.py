@@ -4,7 +4,7 @@ import os
 import shlex
 import shutil
 import subprocess
-from typing import IO, List, Optional
+from typing import Optional
 
 # Import from the backend_shared package
 import config
@@ -26,9 +26,6 @@ def trim_repo(repo_id):
     """Trim a repo ID to just the first two segments"""
     return "/".join(repo_id.split("/")[:2])
 
-def is_single_file(filename: str):
-    """Check if a filename is a single file (not a directory)"""
-    return filename.endswith(".safetensors") or filename.endswith(".bin") or filename.endswith(".gguf")
 
 def is_specific_file_reference(repo_id: str) -> bool:
     """Check if repo_id references a specific file (has file extension)"""
@@ -214,19 +211,6 @@ def create_cache_path(sha256: str, file_size: int):
     )
     return cache_path
 
-def cache_file(file_path: IO[bytes] | str, file_size: int):
-    """Cache a file using its SHA256 hash and size"""
-    sha256 = calculate_sha256(file_path)
-
-    cache_path = create_cache_path(sha256, file_size)
-
-    if not os.path.exists(cache_path):
-        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-        os.rename(file_path, cache_path)
-
-    if os.path.exists(file_path):
-        os.remove(file_path)
-    os.link(cache_path, file_path)
 
 def remove_existing_filesystem_resource(path: str):
     """Remove an existing file or directory"""

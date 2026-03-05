@@ -1,4 +1,3 @@
-import os
 import threading
 from queue import Empty, Queue
 import json
@@ -15,17 +14,17 @@ from web_request_bodies import DownloadModelData
 class Model_Downloader_Adapter:
     msg_queue: Queue
     finish: bool
-    singal: threading.Event
+    signal: threading.Event
     file_downloader: FileDownloader
     hf_downloader: HFPlaygroundDownloader
     has_error: bool
     user_stop: bool
 
     def __init__(self, hf_token=None):
-        self.msg_queue = Queue(-1)
+        self.msg_queue = Queue()
         self.finish = False
         self.user_stop = False
-        self.singal = threading.Event()
+        self.signal = threading.Event()
         self.file_downloader = FileDownloader()
         self.file_downloader.on_download_progress = (
             self.download_model_progress_callback
@@ -41,26 +40,22 @@ class Model_Downloader_Adapter:
 
     def put_msg(self, data):
         self.msg_queue.put_nowait(data)
-        self.singal.set()
+        self.signal.set()
 
     def download_model_progress_callback(
         self, repo_id: str, download_size: int, total_size: int, speed: int
     ):
-        print(
-            "download {} {}/{} speed {}".format(
-                repo_id,
-                bytes2human(download_size),
-                bytes2human(total_size),
-                bytes2human(speed),
-            )
-        )
+        d_human = bytes2human(download_size)
+        t_human = bytes2human(total_size)
+        s_human = bytes2human(speed)
+        print(f"download {repo_id} {d_human}/{t_human} speed {s_human}")
         data = {
             "type": "download_model_progress",
             "repo_id": repo_id,
-            "download_size": bytes2human(download_size),
-            "total_size": bytes2human(total_size),
-            "percent": round(download_size / total_size * 100, 2),
-            "speed": "{}/s".format(bytes2human(speed)),
+            "download_size": d_human,
+            "total_size": t_human,
+            "percent": round(download_size / total_size * 100, 2) if total_size > 0 else 0,
+            "speed": f"{s_human}/s",
         }
         self.put_msg(data)
 
@@ -79,7 +74,7 @@ class Model_Downloader_Adapter:
         self.has_error = True
         if (
             isinstance(ex, NotImplementedError)
-            and ex.__str__() == "Access to repositories lists is not implemented."
+            and str(ex) == "Access to repositories lists is not implemented."
         ):
             self.put_msg(
                 {
@@ -146,13 +141,13 @@ class Model_Downloader_Adapter:
             while not self.msg_queue.empty():
                 try:
                     data = self.msg_queue.get_nowait()
-                    msg = f"data:{json.dumps(data)}\0"
+                    msg = f"data:{json.dumps(data, separators=(',', ':'))}\0"
                     yield msg
                 except Empty:
                     break
             if not self.finish:
-                self.singal.clear()
-                self.singal.wait()
+                self.signal.clear()
+                self.signal.wait(timeout=1.0)
             else:
                 break
 

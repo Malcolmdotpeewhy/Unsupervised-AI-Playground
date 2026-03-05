@@ -145,71 +145,12 @@ export function getTranslationLabel(prefix: string, label: string) {
 
 /**
  * Checks if an image is the NSFW blocked placeholder (512x512 completely black image).
- * The safety checker outputs this image when NSFW content is detected.
+ * (Safety checker is currently disabled for this uncensored version.)
  * @param imageUrl - The URL of the image to check
- * @returns A Promise that resolves to true if the image is the NSFW blocked placeholder
+ * @returns A Promise that always resolves to false
  */
-export async function checkIfNsfwBlocked(imageUrl: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    const img = new Image()
-
-    img.onload = () => {
-      // Check if image is exactly 512x512
-      if (img.width !== 512 || img.height !== 512) {
-        resolve(false)
-        return
-      }
-
-      // Create canvas to read pixels
-      const canvas = document.createElement('canvas')
-      canvas.width = img.width
-      canvas.height = img.height
-      const ctx = canvas.getContext('2d')
-
-      if (!ctx) {
-        resolve(false)
-        return
-      }
-
-      ctx.drawImage(img, 0, 0)
-
-      // Sample pixels at various positions to check if all black
-      // We sample a grid of points rather than checking every pixel for performance
-      const samplePoints = [
-        [0, 0],
-        [255, 0],
-        [511, 0],
-        [0, 255],
-        [255, 255],
-        [511, 255],
-        [0, 511],
-        [255, 511],
-        [511, 511],
-        [128, 128],
-        [384, 384],
-        [64, 448],
-        [448, 64],
-      ]
-
-      for (const [x, y] of samplePoints) {
-        const pixel = ctx.getImageData(x, y, 1, 1).data
-        // Check if pixel is black (R, G, B all 0, with some tolerance for compression artifacts)
-        if (pixel[0] > 5 || pixel[1] > 5 || pixel[2] > 5) {
-          resolve(false)
-          return
-        }
-      }
-
-      // All sampled pixels are black, this is likely the NSFW blocked image
-      resolve(true)
-    }
-
-    img.onerror = () => {
-      resolve(false)
-    }
-
-    img.src = imageUrl
-  })
+export async function checkIfNsfwBlocked(_imageUrl: string): Promise<boolean> {
+  return Promise.resolve(false)
 }
 
 /**

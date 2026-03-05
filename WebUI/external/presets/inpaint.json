@@ -2,7 +2,9 @@
   "type": "comfy",
   "name": "Inpaint",
   "displayPriority": 500,
-  "tags": ["masking"],
+  "tags": [
+    "masking"
+  ],
   "backend": "comfyui",
   "category": "edit-images",
   "description": "Regenerate portions of an image by masking an area that will change based on your prompt",
@@ -15,7 +17,11 @@
     {
       "name": "Draft",
       "overrides": {
-        "tags": ["inpaint", "edit-images", "SD1.5"],
+        "tags": [
+          "inpaint",
+          "edit-images",
+          "SD1.5"
+        ],
         "requiredModels": [
           {
             "type": "unet",
@@ -28,18 +34,6 @@
           {
             "type": "vae",
             "model": "Lykon/dreamshaper-8-inpainting/vae/diffusion_pytorch_model.safetensors"
-          },
-          {
-            "type": "nsfwdetector",
-            "model": "AdamCodd/vit-base-nsfw-detector/config.json"
-          },
-          {
-            "type": "nsfwdetector",
-            "model": "AdamCodd/vit-base-nsfw-detector/model.safetensors"
-          },
-          {
-            "type": "nsfwdetector",
-            "model": "AdamCodd/vit-base-nsfw-detector/preprocessor_config.json"
           }
         ],
         "comfyUiApiWorkflow": {
@@ -75,7 +69,10 @@
           },
           "11": {
             "inputs": {
-              "model": ["10", 0]
+              "model": [
+                "10",
+                0
+              ]
             },
             "class_type": "DifferentialDiffusion",
             "_meta": {
@@ -85,11 +82,26 @@
           "12": {
             "inputs": {
               "noise_mask": false,
-              "positive": ["6", 0],
-              "negative": ["7", 0],
-              "vae": ["4", 0],
-              "pixels": ["23", 0],
-              "mask": ["14", 0]
+              "positive": [
+                "6",
+                0
+              ],
+              "negative": [
+                "7",
+                0
+              ],
+              "vae": [
+                "4",
+                0
+              ],
+              "pixels": [
+                "23",
+                0
+              ],
+              "mask": [
+                "14",
+                0
+              ]
             },
             "class_type": "InpaintModelConditioning",
             "_meta": {
@@ -102,7 +114,11 @@
     {
       "name": "HD",
       "overrides": {
-        "tags": ["inpaint", "edit-images", "SDXL"],
+        "tags": [
+          "inpaint",
+          "edit-images",
+          "SDXL"
+        ],
         "requiredModels": [
           {
             "type": "checkpoint",
@@ -115,18 +131,6 @@
           {
             "type": "inpaint",
             "model": "lllyasviel/fooocus_inpaint/inpaint_v26.fooocus.patch"
-          },
-          {
-            "type": "nsfwdetector",
-            "model": "AdamCodd/vit-base-nsfw-detector/config.json"
-          },
-          {
-            "type": "nsfwdetector",
-            "model": "AdamCodd/vit-base-nsfw-detector/model.safetensors"
-          },
-          {
-            "type": "nsfwdetector",
-            "model": "AdamCodd/vit-base-nsfw-detector/preprocessor_config.json"
           }
         ],
         "settings": [
@@ -188,10 +192,22 @@
               "sampler_name": "dpmpp_2m_sde",
               "scheduler": "karras",
               "denoise": 1,
-              "model": ["103", 0],
-              "positive": ["6", 0],
-              "negative": ["7", 0],
-              "latent_image": ["104", 0]
+              "model": [
+                "103",
+                0
+              ],
+              "positive": [
+                "6",
+                0
+              ],
+              "negative": [
+                "7",
+                0
+              ],
+              "latent_image": [
+                "104",
+                0
+              ]
             },
             "class_type": "KSampler",
             "_meta": {
@@ -200,8 +216,14 @@
           },
           "5": {
             "inputs": {
-              "samples": ["3", 0],
-              "vae": ["102", 2]
+              "samples": [
+                "3",
+                0
+              ],
+              "vae": [
+                "102",
+                2
+              ]
             },
             "class_type": "VAEDecode",
             "_meta": {
@@ -211,7 +233,10 @@
           "6": {
             "inputs": {
               "text": "a beach",
-              "clip": ["102", 1]
+              "clip": [
+                "102",
+                1
+              ]
             },
             "class_type": "CLIPTextEncode",
             "_meta": {
@@ -221,7 +246,10 @@
           "7": {
             "inputs": {
               "text": "nsfw",
-              "clip": ["102", 1]
+              "clip": [
+                "102",
+                1
+              ]
             },
             "class_type": "CLIPTextEncode",
             "_meta": {
@@ -259,9 +287,18 @@
           },
           "103": {
             "inputs": {
-              "model": ["102", 0],
-              "patch": ["101", 0],
-              "latent": ["104", 0]
+              "model": [
+                "102",
+                0
+              ],
+              "patch": [
+                "101",
+                0
+              ],
+              "latent": [
+                "104",
+                0
+              ]
             },
             "class_type": "INPAINT_ApplyFooocusInpaint",
             "_meta": {
@@ -271,9 +308,18 @@
           "104": {
             "inputs": {
               "grow_mask_by": 16,
-              "pixels": ["23", 0],
-              "vae": ["102", 2],
-              "mask": ["14", 0]
+              "pixels": [
+                "23",
+                0
+              ],
+              "vae": [
+                "102",
+                2
+              ],
+              "mask": [
+                "14",
+                0
+              ]
             },
             "class_type": "VAEEncodeForInpaint",
             "_meta": {
@@ -375,31 +421,11 @@
     },
     {
       "type": "boolean",
-      "label": "Safety Check",
-      "displayed": false,
-      "modifiable": false,
-      "defaultValue": true,
-      "settingName": "safetyCheck"
-    },
-    {
-      "type": "boolean",
       "label": "Show Preview",
       "displayed": true,
       "modifiable": true,
       "defaultValue": true,
       "settingName": "showPreview"
-    },
-    {
-      "type": "number",
-      "label": "Safety Checker Strength",
-      "nodeTitle": "SafetyCheckerStrength",
-      "nodeInput": "b",
-      "min": 0,
-      "max": 1,
-      "step": 0.05,
-      "defaultValue": 0.5,
-      "displayed": true,
-      "modifiable": true
     },
     {
       "type": "image",
@@ -424,9 +450,9 @@
       "nodeTitle": "KSampler",
       "nodeInput": "denoise",
       "min": 0.1,
-      "max": 1.0,
+      "max": 1,
       "step": 0.01,
-      "defaultValue": 1.0,
+      "defaultValue": 1,
       "displayed": false,
       "modifiable": false
     }
@@ -449,11 +475,23 @@
         "cfg": 7,
         "sampler_name": "dpmpp_2m",
         "scheduler": "karras",
-        "denoise": 1.0,
-        "model": ["11", 0],
-        "positive": ["12", 0],
-        "negative": ["12", 1],
-        "latent_image": ["12", 2]
+        "denoise": 1,
+        "model": [
+          "11",
+          0
+        ],
+        "positive": [
+          "12",
+          0
+        ],
+        "negative": [
+          "12",
+          1
+        ],
+        "latent_image": [
+          "12",
+          2
+        ]
       },
       "class_type": "KSampler",
       "_meta": {
@@ -462,8 +500,14 @@
     },
     "5": {
       "inputs": {
-        "samples": ["3", 0],
-        "vae": ["4", 0]
+        "samples": [
+          "3",
+          0
+        ],
+        "vae": [
+          "4",
+          0
+        ]
       },
       "class_type": "VAEDecode",
       "_meta": {
@@ -473,7 +517,10 @@
     "6": {
       "inputs": {
         "text": "upperbody shot,long hairs, happy, laugh, hugging a teddy bear, looking at viewers, dancing stand, cute, soft color, flowers in background, many flowers, among flowers, best quality, highres, delicate details,",
-        "clip": ["9", 0]
+        "clip": [
+          "9",
+          0
+        ]
       },
       "class_type": "CLIPTextEncode",
       "_meta": {
@@ -483,17 +530,36 @@
     "7": {
       "inputs": {
         "text": "nsfw",
-        "clip": ["9", 0]
+        "clip": [
+          "9",
+          0
+        ]
       },
       "class_type": "CLIPTextEncode",
       "_meta": {
         "title": "negativePrompt"
       }
     },
+    "8": {
+      "inputs": {
+        "filename_prefix": "AIPG_Image",
+        "images": [
+          "5",
+          0
+        ]
+      },
+      "class_type": "SaveImage",
+      "_meta": {
+        "title": "Save Image"
+      }
+    },
     "14": {
       "inputs": {
         "channel": "red",
-        "image": ["25", 0]
+        "image": [
+          "25",
+          0
+        ]
       },
       "class_type": "ImageToMask",
       "_meta": {
@@ -502,7 +568,10 @@
     },
     "15": {
       "inputs": {
-        "mask": ["1", 1]
+        "mask": [
+          "1",
+          1
+        ]
       },
       "class_type": "MaskToImage",
       "_meta": {
@@ -512,10 +581,19 @@
     "23": {
       "inputs": {
         "upscale_method": "bicubic",
-        "width": ["27", 0],
-        "height": ["28", 0],
+        "width": [
+          "27",
+          0
+        ],
+        "height": [
+          "28",
+          0
+        ],
         "crop": "center",
-        "image": ["1", 0]
+        "image": [
+          "1",
+          0
+        ]
       },
       "class_type": "ImageScale",
       "_meta": {
@@ -525,10 +603,19 @@
     "25": {
       "inputs": {
         "upscale_method": "bicubic",
-        "width": ["27", 0],
-        "height": ["28", 0],
+        "width": [
+          "27",
+          0
+        ],
+        "height": [
+          "28",
+          0
+        ],
         "crop": "center",
-        "image": ["15", 0]
+        "image": [
+          "15",
+          0
+        ]
       },
       "class_type": "ImageScale",
       "_meta": {
@@ -551,38 +638,6 @@
       "class_type": "PrimitiveInt",
       "_meta": {
         "title": "height"
-      }
-    },
-    "8": {
-      "inputs": {
-        "filename_prefix": "AIPG_Image",
-        "images": ["98", 0]
-      },
-      "class_type": "SaveImage",
-      "_meta": {
-        "title": "Save Image"
-      }
-    },
-    "98": {
-      "inputs": {
-        "threshold": ["99", 0],
-        "cuda": false,
-        "image": ["5", 0]
-      },
-      "class_type": "SafetyChecker",
-      "_meta": {
-        "title": "Intercept NSFW Outputs"
-      }
-    },
-    "99": {
-      "inputs": {
-        "op": "Sub",
-        "a": 1,
-        "b": 0.5
-      },
-      "class_type": "CM_FloatBinaryOperation",
-      "_meta": {
-        "title": "SafetyCheckerStrength"
       }
     }
   }

@@ -84,14 +84,14 @@ const globalDefaultSettings = {
   inferenceSteps: 4,
   resolution: '512x512',
   batchSize: 1,
-  negativePrompt: 'nsfw',
-  safetyCheck: true,
+  negativePrompt: '',
+  safetyCheck: false,
 }
 
 const generalDefaultSettings = {
   prompt: '',
   seed: -1,
-  safetyCheck: true,
+  safetyCheck: false,
   showPreview: true,
 }
 
@@ -707,8 +707,8 @@ export const useImageGenerationPresets = defineStore(
             ])
           const imagesToPersist = Array.isArray(state.generatedImages)
             ? state.generatedImages
-                .filter((img) => img && img.state === 'done')
-                .toSorted((a: MediaItem, b: MediaItem) => (a.createdAt ?? 0) - (b.createdAt ?? 0))
+              .filter((img) => img && img.state === 'done')
+              .toSorted((a: MediaItem, b: MediaItem) => (a.createdAt ?? 0) - (b.createdAt ?? 0))
             : state.generatedImages
           return JSON.stringify({
             ...state,
