@@ -2,10 +2,7 @@
   "type": "comfy",
   "name": "Outpaint",
   "displayPriority": 400,
-  "tags": [
-    "outpaint",
-    "edit-images"
-  ],
+  "tags": ["outpaint", "edit-images"],
   "backend": "comfyui",
   "category": "edit-images",
   "description": "Extend an image beyond its borders by sizing and positioning an image in a new space, then generate new content around it",
@@ -18,11 +15,7 @@
     {
       "name": "Draft",
       "overrides": {
-        "tags": [
-          "outpaint",
-          "edit-images",
-          "SD1.5"
-        ],
+        "tags": ["outpaint", "edit-images", "SD1.5"],
         "requiredModels": [
           {
             "type": "unet",
@@ -51,10 +44,7 @@
             "inputs": {
               "upscale_method": "bicubic",
               "scale_by": 0.5,
-              "image": [
-                "1",
-                0
-              ]
+              "image": ["1", 0]
             },
             "class_type": "ImageScaleBy",
             "_meta": {
@@ -69,22 +59,10 @@
               "sampler_name": "dpmpp_2m_sde",
               "scheduler": "karras",
               "denoise": 1,
-              "model": [
-                "25",
-                0
-              ],
-              "positive": [
-                "20",
-                0
-              ],
-              "negative": [
-                "20",
-                1
-              ],
-              "latent_image": [
-                "20",
-                3
-              ]
+              "model": ["25", 0],
+              "positive": ["20", 0],
+              "negative": ["20", 1],
+              "latent_image": ["20", 3]
             },
             "class_type": "KSampler",
             "_meta": {
@@ -93,14 +71,8 @@
           },
           "5": {
             "inputs": {
-              "samples": [
-                "3",
-                0
-              ],
-              "vae": [
-                "26",
-                0
-              ]
+              "samples": ["3", 0],
+              "vae": ["26", 0]
             },
             "class_type": "VAEDecode",
             "_meta": {
@@ -110,10 +82,7 @@
           "6": {
             "inputs": {
               "text": "a rose growing out of a dark green hedge",
-              "clip": [
-                "24",
-                0
-              ]
+              "clip": ["24", 0]
             },
             "class_type": "CLIPTextEncode",
             "_meta": {
@@ -123,10 +92,7 @@
           "7": {
             "inputs": {
               "text": "nsfw",
-              "clip": [
-                "24",
-                0
-              ]
+              "clip": ["24", 0]
             },
             "class_type": "CLIPTextEncode",
             "_meta": {
@@ -136,10 +102,7 @@
           "8": {
             "inputs": {
               "filename_prefix": "AIPG_Image",
-              "images": [
-                "5",
-                0
-              ]
+              "images": ["5", 0]
             },
             "class_type": "SaveImage",
             "_meta": {
@@ -152,10 +115,7 @@
               "height": 150,
               "x": 50,
               "y": 60,
-              "image": [
-                "2",
-                0
-              ]
+              "image": ["2", 0]
             },
             "class_type": "ImageCrop",
             "_meta": {
@@ -169,10 +129,7 @@
               "right": 160,
               "bottom": 168,
               "feathering": 24,
-              "image": [
-                "13",
-                0
-              ]
+              "image": ["13", 0]
             },
             "class_type": "ImagePadForOutpaint",
             "_meta": {
@@ -181,26 +138,11 @@
           },
           "20": {
             "inputs": {
-              "positive": [
-                "6",
-                0
-              ],
-              "negative": [
-                "7",
-                0
-              ],
-              "vae": [
-                "26",
-                0
-              ],
-              "pixels": [
-                "22",
-                0
-              ],
-              "mask": [
-                "14",
-                1
-              ]
+              "positive": ["6", 0],
+              "negative": ["7", 0],
+              "vae": ["26", 0],
+              "pixels": ["22", 0],
+              "mask": ["14", 1]
             },
             "class_type": "INPAINT_VAEEncodeInpaintConditioning",
             "_meta": {
@@ -211,14 +153,8 @@
             "inputs": {
               "fill": "navier-stokes",
               "falloff": 0,
-              "image": [
-                "14",
-                0
-              ],
-              "mask": [
-                "14",
-                1
-              ]
+              "image": ["14", 0],
+              "mask": ["14", 1]
             },
             "class_type": "INPAINT_MaskedFill",
             "_meta": {
@@ -229,14 +165,8 @@
             "inputs": {
               "blur": 101,
               "falloff": 22,
-              "image": [
-                "21",
-                0
-              ],
-              "mask": [
-                "14",
-                1
-              ]
+              "image": ["21", 0],
+              "mask": ["14", 1]
             },
             "class_type": "INPAINT_MaskedBlur",
             "_meta": {
@@ -275,10 +205,7 @@
           },
           "27": {
             "inputs": {
-              "images": [
-                "14",
-                0
-              ]
+              "images": ["14", 0]
             },
             "class_type": "PreviewImage",
             "_meta": {
@@ -287,10 +214,7 @@
           },
           "28": {
             "inputs": {
-              "images": [
-                "22",
-                0
-              ]
+              "images": ["22", 0]
             },
             "class_type": "PreviewImage",
             "_meta": {
@@ -303,11 +227,7 @@
     {
       "name": "HD",
       "overrides": {
-        "tags": [
-          "outpaint",
-          "edit-images",
-          "SDXL"
-        ],
+        "tags": ["outpaint", "edit-images", "SDXL"],
         "requiredModels": [
           {
             "type": "checkpoint",
@@ -386,10 +306,7 @@
             "inputs": {
               "upscale_method": "bicubic",
               "scale_by": 0.95,
-              "image": [
-                "1",
-                0
-              ]
+              "image": ["1", 0]
             },
             "class_type": "ImageScaleBy",
             "_meta": {
@@ -404,22 +321,10 @@
               "sampler_name": "dpmpp_2m_sde",
               "scheduler": "karras",
               "denoise": 1,
-              "model": [
-                "17",
-                0
-              ],
-              "positive": [
-                "20",
-                0
-              ],
-              "negative": [
-                "20",
-                1
-              ],
-              "latent_image": [
-                "20",
-                3
-              ]
+              "model": ["17", 0],
+              "positive": ["20", 0],
+              "negative": ["20", 1],
+              "latent_image": ["20", 3]
             },
             "class_type": "KSampler",
             "_meta": {
@@ -428,14 +333,8 @@
           },
           "5": {
             "inputs": {
-              "samples": [
-                "3",
-                0
-              ],
-              "vae": [
-                "18",
-                2
-              ]
+              "samples": ["3", 0],
+              "vae": ["18", 2]
             },
             "class_type": "VAEDecode",
             "_meta": {
@@ -445,10 +344,7 @@
           "6": {
             "inputs": {
               "text": "rose",
-              "clip": [
-                "18",
-                1
-              ]
+              "clip": ["18", 1]
             },
             "class_type": "CLIPTextEncode",
             "_meta": {
@@ -458,10 +354,7 @@
           "7": {
             "inputs": {
               "text": "nsfw",
-              "clip": [
-                "18",
-                1
-              ]
+              "clip": ["18", 1]
             },
             "class_type": "CLIPTextEncode",
             "_meta": {
@@ -471,10 +364,7 @@
           "8": {
             "inputs": {
               "filename_prefix": "AIPG_Image",
-              "images": [
-                "5",
-                0
-              ]
+              "images": ["5", 0]
             },
             "class_type": "SaveImage",
             "_meta": {
@@ -487,10 +377,7 @@
               "height": 302,
               "x": 101,
               "y": 115,
-              "image": [
-                "2",
-                0
-              ]
+              "image": ["2", 0]
             },
             "class_type": "ImageCrop",
             "_meta": {
@@ -504,10 +391,7 @@
               "right": 328,
               "bottom": 344,
               "feathering": 24,
-              "image": [
-                "13",
-                0
-              ]
+              "image": ["13", 0]
             },
             "class_type": "ImagePadForOutpaint",
             "_meta": {
@@ -516,18 +400,9 @@
           },
           "17": {
             "inputs": {
-              "model": [
-                "18",
-                0
-              ],
-              "patch": [
-                "19",
-                0
-              ],
-              "latent": [
-                "20",
-                2
-              ]
+              "model": ["18", 0],
+              "patch": ["19", 0],
+              "latent": ["20", 2]
             },
             "class_type": "INPAINT_ApplyFooocusInpaint",
             "_meta": {
@@ -555,26 +430,11 @@
           },
           "20": {
             "inputs": {
-              "positive": [
-                "6",
-                0
-              ],
-              "negative": [
-                "7",
-                0
-              ],
-              "vae": [
-                "18",
-                2
-              ],
-              "pixels": [
-                "22",
-                0
-              ],
-              "mask": [
-                "14",
-                1
-              ]
+              "positive": ["6", 0],
+              "negative": ["7", 0],
+              "vae": ["18", 2],
+              "pixels": ["22", 0],
+              "mask": ["14", 1]
             },
             "class_type": "INPAINT_VAEEncodeInpaintConditioning",
             "_meta": {
@@ -585,14 +445,8 @@
             "inputs": {
               "fill": "navier-stokes",
               "falloff": 0,
-              "image": [
-                "14",
-                0
-              ],
-              "mask": [
-                "14",
-                1
-              ]
+              "image": ["14", 0],
+              "mask": ["14", 1]
             },
             "class_type": "INPAINT_MaskedFill",
             "_meta": {
@@ -603,14 +457,8 @@
             "inputs": {
               "blur": 101,
               "falloff": 22,
-              "image": [
-                "21",
-                0
-              ],
-              "mask": [
-                "14",
-                1
-              ]
+              "image": ["21", 0],
+              "mask": ["14", 1]
             },
             "class_type": "INPAINT_MaskedBlur",
             "_meta": {
