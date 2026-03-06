@@ -7,6 +7,7 @@ import getPort, { portNumbers } from 'get-port'
 import { LlamaCppBackendService } from './llamaCppBackendService.ts'
 import { OpenVINOBackendService } from './openVINOBackendService.ts'
 import { OllamaBackendService } from './ollamaBackendService.ts'
+import { getSystemVRAM } from './osProcessHelper.ts'
 import { LocalSettings } from '../main.ts'
 
 export type backend = 'ai-backend' | 'comfyui-backend' | 'ollama-backend'
@@ -15,6 +16,7 @@ export interface ApiServiceRegistry {
   register(apiService: ApiService): void
   getRegistered(): ApiService[]
   getRequired(): ApiService[]
+  validateVRAMForModelLoad(minimumRequiredBytes?: number): Promise<boolean>
 }
 
 export class ApiServiceRegistryImpl implements ApiServiceRegistry {
@@ -72,6 +74,15 @@ export class ApiServiceRegistryImpl implements ApiServiceRegistry {
 
   getServiceInformation(): ApiServiceInformation[] {
     return this.getRegistered().map((service) => service.get_info())
+  }
+
+  async validateVRAMForModelLoad(minimumRequiredBytes: number = 2 * 1024 * 1024 * 1024): Promise<boolean> {
+    const vram = await getSystemVRAM()
+    if (vram > 0 && vram < minimumRequiredBytes) {
+      appLoggerInstance.warn(`VRAM ${vram} is below minimum required ${minimumRequiredBytes}. Hardware constraints might trigger an OOM.`, 'apiServiceRegistry')
+      return false
+    }
+    return true
   }
 
   /**

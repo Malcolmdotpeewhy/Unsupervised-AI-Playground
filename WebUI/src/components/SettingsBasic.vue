@@ -153,14 +153,25 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-col pt-5">
+    <div class="flex flex-col pt-5 gap-2">
       <button
         @click="globalSetup.loadingState = 'manageInstallations'"
         class="bg-primary hover:bg-primary/80 px-3 py-1.5 rounded-lg text-sm"
       >
         {{ languages.SETTINGS_MODEL_MANAGE_BACKEND }}
       </button>
+      <button
+        @click="isTemplateEditorVisible = !isTemplateEditorVisible"
+        class="bg-secondary hover:bg-secondary/80 px-3 py-1.5 rounded-lg text-sm text-foreground"
+      >
+        Open Pipeline Template Editor
+      </button>
     </div>
+    
+    <PipelineTemplateEditor 
+      v-if="isTemplateEditorVisible" 
+      @close="isTemplateEditorVisible = false" 
+    />
   </div>
 </template>
 
@@ -187,6 +198,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useI18N } from '@/assets/js/store/i18n'
 import { Spinner } from './ui/spinner'
 import { Button } from '@/components/ui/button'
+import PipelineTemplateEditor from '@/components/PipelineTemplateEditor.vue'
 
 const globalSetup = useGlobalSetup()
 const backendServices = useBackendServices()
@@ -199,6 +211,8 @@ const speechToText = useSpeechToText()
 const developerSettings = useDeveloperSettings()
 const dialogStore = useDialogStore()
 const backendStarting = ref(false)
+
+const isTemplateEditorVisible = ref(false)
 
 const mirrorUrl = ref(models.hfEndpoint)
 const verificationMessage = ref('')

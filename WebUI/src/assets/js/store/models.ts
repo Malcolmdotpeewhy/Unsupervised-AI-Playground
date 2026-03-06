@@ -12,7 +12,7 @@ export type ModelLists = {
   embedding: string[]
 } & { [key: string]: Array<string> }
 
-export type ModelType = 'embedding' | 'undefined' | LlmBackend
+export type ModelType = 'embedding' | 'undefined' | LlmBackend | 'checkpoints' | 'lora' | 'vae' | 'controlnet' | 'unet' | 'stableDiffusion' | (string & {})
 
 export type Model = {
   name: string
@@ -131,13 +131,14 @@ export const useModels = defineStore(
       console.log('Models refreshed', models.value)
     }
 
-    async function download(_models: DownloadModelParam[]) {}
+    async function download(_models: DownloadModelParam[]) { }
     async function addModel(model: Model) {
       // Store metadata for custom models
       if (!model.isPredefined) {
         customModelMetadata.value[model.name] = {
           mmproj: model.mmproj,
           backend: model.backend,
+          type: model.type,
           supportsToolCalling: model.supportsToolCalling,
           supportsVision: model.supportsVision,
           supportsReasoning: model.supportsReasoning,

@@ -1,0 +1,30 @@
+============================= test session starts =============================
+platform win32 -- Python 3.11.9, pytest-8.4.2, pluggy-1.6.0
+rootdir: C:\Users\Administrator\Desktop\AI PLAYGROUND\AI-Playground\service
+configfile: pyproject.toml
+plugins: anyio-3.7.1, asyncio-1.1.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 4 items
+
+tests\test_huggingface_adapter.py F...                                   [100%]
+
+================================== FAILURES ===================================
+____________________________ test_gguf_resolution _____________________________
+
+adapter = <huggingface_adapter.HuggingFaceAdapterLayer object at 0x00000255F29C2DD0>
+
+    def test_gguf_resolution(adapter):
+        # Testing a repo containing GGUF models
+        result = adapter.evaluate_execution_engine("City96/Flux.1-schnell-gguf")
+        assert result["backend"] == "llama_cpp"
+        assert result["engine"] == "GGML"
+>       assert "gguf" in str(result).lower()
+E       assert 'gguf' in "{'backend': 'llama_cpp', 'engine': 'ggml', 'architecture': '', 'pipeline_tag': 'text-to-image', 'success': true}"
+E        +  where "{'backend': 'llama_cpp', 'engine': 'ggml', 'architecture': '', 'pipeline_tag': 'text-to-image', 'success': true}" = <built-in method lower of str object at 0x00000255F281AC70>()
+E        +    where <built-in method lower of str object at 0x00000255F281AC70> = "{'backend': 'llama_cpp', 'engine': 'GGML', 'architecture': '', 'pipeline_tag': 'text-to-image', 'success': True}".lower
+E        +      where "{'backend': 'llama_cpp', 'engine': 'GGML', 'architecture': '', 'pipeline_tag': 'text-to-image', 'success': True}" = str({'architecture': '', 'backend': 'llama_cpp', 'engine': 'GGML', 'pipeline_tag': 'text-to-image', ...})
+
+tests\test_huggingface_adapter.py:16: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_huggingface_adapter.py::test_gguf_resolution - assert 'gguf...
+========================= 1 failed, 3 passed in 2.59s =========================

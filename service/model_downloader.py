@@ -95,8 +95,35 @@ class HFPlaygroundDownloader:
     def hf_url_exists(self, repo_id: str):
         return self.fs.exists(repo_id)
 
-    def probe_type(self, repo_id : str):
-        return model_info(utils.trim_repo(repo_id)).pipeline_tag
+    def probe_type(self, repo_id: str) -> dict:
+        try:
+            repo_id = utils.trim_repo(repo_id)
+            info = model_info(repo_id)
+            tag = info.pipeline_tag
+
+            # Fetch the config.json to explicitly extract model architecture
+            config_path = f"{repo_id}/config.json"
+            config_data = {}
+            if self.fs.exists(config_path):
+                import json
+                try:
+                    with self.fs.open(config_path, "r") as f:
+                        config_data = json.load(f)
+                except Exception as ex:
+                    logging.error(f"Failed to parse config.json for {repo_id}: {ex}")
+
+            architectures = config_data.get("architectures", [])
+            model_type = config_data.get("model_type", "")
+            
+            return {
+                "pipeline_tag": tag,
+                "architectures": architectures,
+                "model_type": model_type,
+                "tags": getattr(info, "tags", [])
+            }
+        except Exception as ex:
+            logging.error(f"Error probing type for {repo_id}: {ex}")
+            return {"pipeline_tag": None, "architectures": [], "model_type": "", "tags": []}
 
     def is_gated(self, repo_id: str):
         try:
@@ -196,6 +223,38 @@ class HFPlaygroundDownloader:
             if not specific_file_found:
                 self.enum_file_list(file_list, repo_id, model_type)
         else:
+            # Check if this is a generic repository that contains standalone gguf/safetensors
+            try:
+                files = self.fs.ls(repo_id, detail=True)
+                # Auto-resolve the best single file if applicable
+                gguf_files = [f for f in files if f.get("name").endswith(".gguf")]
+                safetensor_files = [f for f in files if f.get("name").endswith(".safetensors")]
+                
+                # If we're looking for an LLM and there's a gguf, only grab the first one
+                if model_type == "ggufLLM" and gguf_files:
+                    target_file = gguf_files[0].get("name")
+                    specific_file_found = self.enum_specific_file(file_list, target_file, model_type)
+                    if specific_file_found:
+                        return
+
+                # If OpenVINO, we need the bin/xml and tokenizer files, let it fall through to enum_file_list
+                if model_type == "openvinoLLM":
+                    # Optionally we could filter for just *.bin, *.xml, and tokenizer files
+                    pass
+
+                # If we're looking for a ComfyUI checkpoint and there are safetensors in root, grab the largest one
+                comfy_types = ["checkpoints", "lora", "vae", "controlnet"]
+                if model_type in comfy_types and safetensor_files:
+                    # Sort by size to get the primary checkpoint instead of small config safetensors
+                    safetensor_files.sort(key=lambda x: x.get("size", 0), reverse=True)
+                    target_file = safetensor_files[0].get("name")
+                    specific_file_found = self.enum_specific_file(file_list, target_file, model_type)
+                    if specific_file_found:
+                        return
+                        
+            except Exception as e:
+                logging.warning(f"Failed resolving dynamic model for {repo_id}: {e}")
+
             self.enum_file_list(file_list, repo_id, model_type)
 
     def get_model_total_size(self, repo_id: str, model_type: str):
