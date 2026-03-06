@@ -55,6 +55,12 @@
             <div
               :class="textInference.fontSizeClass"
               v-html="getParsedMarkdown(message.id + '-user', message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
+              v-html="
+                getRenderedMarkdown(
+                  message.parts.find((part) => part.type === 'text')?.text ?? '',
+                  openAiCompatibleChat.processing && i === activeConversation.length - 1,
+                )
+              "
             ></div>
             <button
               class="flex items-center gap-1 text-xs text-muted-foreground mt-1"
@@ -163,6 +169,21 @@
               </template>
               <div
                 v-html="getParsedMarkdown(message.id + '-text', message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                  v-html="
+                    getRenderedMarkdown(
+                      message.parts.find((part) => part.type === 'reasoning')?.text ?? '',
+                      openAiCompatibleChat.processing && i === activeConversation.length - 1,
+                    )
+                  "
+                ></div>
+              </template>
+              <div
+                v-html="
+                  getRenderedMarkdown(
+                    message.parts.find((part) => part.type === 'text')?.text ?? '',
+                    openAiCompatibleChat.processing && i === activeConversation.length - 1,
+                  )
+                "
               ></div>
 
               <!-- Render tool parts -->
@@ -363,6 +384,34 @@ function getParsedMarkdown(cacheKey: string, text: string, isProcessing: boolean
   }
 
   return parsed
+// Markdown rendering cache to prevent render thrashing in v-for loops
+const markdownCache = new Map<string, string>()
+const MAX_CACHE_SIZE = 100
+
+function getRenderedMarkdown(text: string, isStreaming: boolean): string {
+  if (!text) return ''
+
+  // Bypass cache during active streaming to prevent rapid evictions and memory thrashing
+  if (isStreaming) {
+    return sanitizeMarkdown(parse(text) as string)
+  }
+
+  // Use cached version if available
+  if (markdownCache.has(text)) {
+    return markdownCache.get(text)!
+  }
+
+  // Parse, sanitize, and cache
+  const rendered = sanitizeMarkdown(parse(text) as string)
+
+  // Maintain LRU cache size limit
+  if (markdownCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = markdownCache.keys().next().value
+    if (firstKey) markdownCache.delete(firstKey)
+  }
+
+  markdownCache.set(text, rendered)
+  return rendered
 }
 
 // Track progress for active tool calls
