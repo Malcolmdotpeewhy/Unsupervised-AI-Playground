@@ -44,7 +44,7 @@ const availablePresets = computed(() => presetsStore.presets.comfyUiPresets)
 
 const selectedPresetId = ref('')
 const templateJson = ref('')
-const emit = defineEmits(['close'])
+defineEmits(['close'])
 
 function loadSelectedPreset() {
   const preset = availablePresets.value.find(p => p.id === selectedPresetId.value)
