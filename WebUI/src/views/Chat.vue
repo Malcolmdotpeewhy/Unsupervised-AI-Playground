@@ -54,12 +54,7 @@
             />
             <div
               :class="textInference.fontSizeClass"
-              v-html="getParsedMarkdown(message.id + '-user', message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
-              v-html="
-                memoizedParseAndSanitize(
-                  message.parts.find((part) => part.type === 'text')?.text ?? '',
-                )
-              "
+              v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
             ></div>
             <button
               class="flex items-center gap-1 text-xs text-muted-foreground mt-1"
@@ -163,24 +158,11 @@
                 <div
                   v-if="showThinkingTextPerMessageId[message.id]"
                   class="border-l-2 border-border pl-4 text-muted-foreground"
-                  v-html="getParsedMarkdown(message.id + '-reasoning', message.parts.find((part) => part.type === 'reasoning')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                  v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'reasoning')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
                 ></div>
               </template>
               <div
-                v-html="getParsedMarkdown(message.id + '-text', message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
-                  v-html="
-                    memoizedParseAndSanitize(
-                      message.parts.find((part) => part.type === 'reasoning')?.text ?? '',
-                    )
-                  "
-                ></div>
-              </template>
-              <div
-                v-html="
-                  memoizedParseAndSanitize(
-                    message.parts.find((part) => part.type === 'text')?.text ?? '',
-                  )
-                "
+                v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
               ></div>
 
               <!-- Render tool parts -->
@@ -347,37 +329,6 @@ const autoScrollEnabled = ref(true)
 const showScrollButton = ref(false)
 const chatPanel = ref<HTMLElement | null>(null)
 
-// Memoization cache for parsed and sanitized markdown
-// Prevents expensive re-parsing of unchanged messages during streaming and scrolling
-const parseCache = new Map<string, string>()
-const MAX_CACHE_SIZE = 1000
-
-function memoizedParseAndSanitize(text: string): string {
-  if (!text) return ''
-  if (parseCache.has(text)) {
-    // Re-insert to maintain LRU order
-    const cached = parseCache.get(text)!
-    parseCache.delete(text)
-    parseCache.set(text, cached)
-    return cached
-  }
-
-  // Parse and sanitize
-  const parsed = parse(text) as string
-  const result = sanitizeMarkdown(parsed)
-
-  // Manage cache size
-  if (parseCache.size >= MAX_CACHE_SIZE) {
-    // Remove oldest entry (Map iterates in insertion order)
-    const firstKey = parseCache.keys().next().value
-    if (firstKey !== undefined) {
-      parseCache.delete(firstKey)
-    }
-  }
-
-  parseCache.set(text, result)
-  return result
-}
 
 const activeConversation = computed(() => openAiCompatibleChat.messages)
 const showThinkingTextPerMessageId = reactive<Record<string, boolean>>({})
@@ -385,37 +336,12 @@ const showRagSourcePerMessageId = reactive<Record<string, boolean>>({})
 
 const ragSourcePerMessageId = reactive<Record<string, string>>({})
 
-// Markdown parsing cache to prevent render thrashing during streaming
-// We only want to cache fully generated messages (isProcessing = false)
-const markdownCache = new Map<string, string>()
-const MAX_CACHE_SIZE = 200
-
-function getParsedMarkdown(cacheKey: string, text: string, isProcessing: boolean): string {
-  if (!text) return ''
-
-  // Try to return a cached result if the message is completely generated
-  // If the message is actively streaming (processing), we bypass the cache entirely to avoid storing every intermediate string state
-  if (!isProcessing && markdownCache.has(cacheKey + text)) {
-    return markdownCache.get(cacheKey + text)!
-  }
-
-  const parsed = sanitizeMarkdown(parse(text) as string)
-
-  // Only insert into the cache if the message finished generating.
-  if (!isProcessing) {
-    if (markdownCache.size >= MAX_CACHE_SIZE) {
-      const firstKey = markdownCache.keys().next().value
-      if (firstKey !== undefined) {
-        markdownCache.delete(firstKey)
-      }
-    }
-    markdownCache.set(cacheKey + text, parsed)
-  }
-
-  return parsed
 // Markdown rendering cache to prevent render thrashing in v-for loops
+// We only want to cache fully generated messages. If the message is actively
+// streaming (processing), we bypass the cache entirely to avoid storing every
+// intermediate string state and causing rapid cache evictions.
 const markdownCache = new Map<string, string>()
-const MAX_CACHE_SIZE = 100
+const MAX_CACHE_SIZE = 1000
 
 function getRenderedMarkdown(text: string, isStreaming: boolean): string {
   if (!text) return ''
@@ -427,7 +353,11 @@ function getRenderedMarkdown(text: string, isStreaming: boolean): string {
 
   // Use cached version if available
   if (markdownCache.has(text)) {
-    return markdownCache.get(text)!
+    // Re-insert to maintain LRU order
+    const cached = markdownCache.get(text)!
+    markdownCache.delete(text)
+    markdownCache.set(text, cached)
+    return cached
   }
 
   // Parse, sanitize, and cache
@@ -436,7 +366,9 @@ function getRenderedMarkdown(text: string, isStreaming: boolean): string {
   // Maintain LRU cache size limit
   if (markdownCache.size >= MAX_CACHE_SIZE) {
     const firstKey = markdownCache.keys().next().value
-    if (firstKey) markdownCache.delete(firstKey)
+    if (firstKey !== undefined) {
+      markdownCache.delete(firstKey)
+    }
   }
 
   markdownCache.set(text, rendered)
