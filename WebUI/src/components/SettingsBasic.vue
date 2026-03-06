@@ -167,10 +167,10 @@
         Open Pipeline Template Editor
       </button>
     </div>
-    
-    <PipelineTemplateEditor 
-      v-if="isTemplateEditorVisible" 
-      @close="isTemplateEditorVisible = false" 
+
+    <PipelineTemplateEditor
+      v-if="isTemplateEditorVisible"
+      @close="isTemplateEditorVisible = false"
     />
   </div>
 </template>

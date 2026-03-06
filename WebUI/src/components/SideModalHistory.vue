@@ -8,7 +8,11 @@
     <template #header-buttons>
       <AlertDialog v-if="mode !== 'chat'">
         <AlertDialogTrigger asChild>
-          <button class="svg-icon i-clear w-6 h-6" :title="languages.COM_CLEAR_HISTORY" />
+          <button
+            class="svg-icon i-clear w-6 h-6"
+            :title="languages.COM_CLEAR_HISTORY"
+            :aria-label="languages.COM_CLEAR_HISTORY"
+          />
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -32,12 +36,14 @@
         @click="selectNewConversation"
         class="svg-icon i-add w-7 h-7"
         :title="languages.COM_ADD"
+        :aria-label="languages.COM_ADD"
       />
       <button
         v-show="mode === 'imageGen' || mode === 'imageEdit' || mode === 'video'"
         @click="selectNewMedia"
         class="svg-icon i-add w-7 h-7"
         :title="languages.COM_ADD"
+        :aria-label="languages.COM_ADD"
       />
     </template>
 
