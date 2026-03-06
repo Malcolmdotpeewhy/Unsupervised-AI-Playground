@@ -114,6 +114,14 @@ class Model_Downloader_Adapter:
                 if self.has_error:
                     break
                 else:
+                    self.put_msg({
+                        "type": "download_model_progress",
+                        "repo_id": item.repo_id,
+                        "download_size": "0 MB",
+                        "total_size": "Evaluating Size...",
+                        "percent": 0,
+                        "speed": "0"
+                    })
                     self.hf_downloader.download(item.repo_id, item.type, item.backend, item.model_path)
                     
                     # Copy faceswap/facerestore models to ComfyUI directory after download completes

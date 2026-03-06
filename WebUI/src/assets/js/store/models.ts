@@ -12,7 +12,7 @@ export type ModelLists = {
   embedding: string[]
 } & { [key: string]: Array<string> }
 
-export type ModelType = 'embedding' | 'undefined' | LlmBackend
+export type ModelType = 'embedding' | 'undefined' | LlmBackend | 'checkpoints' | 'lora' | 'vae' | 'controlnet' | 'unet' | 'stableDiffusion' | (string & {})
 
 export type Model = {
   name: string
@@ -92,9 +92,10 @@ export const useModels = defineStore(
         ...predefinedModels, // Keep models.json order (first = highest priority)
         ...downloadedModels.filter(notPredefined), // Add non-predefined downloads at end
         ...customModelsFromMetadata, // Custom models from persisted metadata
-        ...models.value.filter(notPredefined).filter(notYetDownloaded).filter(
-          (m) => !customModelsFromMetadata.some((cm) => cm.name === m.name),
-        ),
+        ...models.value
+          .filter(notPredefined)
+          .filter(notYetDownloaded)
+          .filter((m) => !customModelsFromMetadata.some((cm) => cm.name === m.name)),
       ]
         .map<Model>((m) => {
           const predefinedModel = predefinedModels.find((pm) => pm.name === m.name)
@@ -130,13 +131,14 @@ export const useModels = defineStore(
       console.log('Models refreshed', models.value)
     }
 
-    async function download(_models: DownloadModelParam[]) {}
+    async function download(_models: DownloadModelParam[]) { }
     async function addModel(model: Model) {
       // Store metadata for custom models
       if (!model.isPredefined) {
         customModelMetadata.value[model.name] = {
           mmproj: model.mmproj,
           backend: model.backend,
+          type: model.type,
           supportsToolCalling: model.supportsToolCalling,
           supportsVision: model.supportsVision,
           supportsReasoning: model.supportsReasoning,

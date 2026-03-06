@@ -2,10 +2,7 @@
   "type": "comfy",
   "name": "Manual",
   "displayPriority": 100,
-  "tags": [
-    "Draft-SD1.5",
-    "HD-SDXL"
-  ],
+  "tags": ["Draft-SD1.5", "HD-SDXL"],
   "backend": "comfyui",
   "category": "create-images",
   "description": "Advanced mode to manually control the model, CFG, sampler and more. But be sure resolution and settings fit the model selected",
@@ -29,21 +26,9 @@
         "totalPixels": 1048576
       }
     ],
-    "aspectRatios": [
-      "21/9",
-      "16/9",
-      "3/2",
-      "4/3",
-      "1/1",
-      "3/4",
-      "2/3",
-      "9/16",
-      "9/21"
-    ]
+    "aspectRatios": ["21/9", "16/9", "3/2", "4/3", "1/1", "3/4", "2/3", "9/16", "9/21"]
   },
-  "requiredCustomNodes": [
-    "evanspearman/ComfyMath@939bb813f1c0ace959b62f20bb2da47190c4e211"
-  ],
+  "requiredCustomNodes": ["evanspearman/ComfyMath@939bb813f1c0ace959b62f20bb2da47190c4e211"],
   "requiredPythonPackages": [],
   "requiredModels": [
     {
@@ -180,14 +165,7 @@
       "defaultValue": "normal",
       "nodeTitle": "KSampler",
       "nodeInput": "scheduler",
-      "options": [
-        "normal",
-        "karras",
-        "exponential",
-        "sgm_uniform",
-        "simple",
-        "ddim_uniform"
-      ]
+      "options": ["normal", "karras", "exponential", "sgm_uniform", "simple", "ddim_uniform"]
     },
     {
       "type": "number",
@@ -211,22 +189,10 @@
         "sampler_name": "dpmpp_2m",
         "scheduler": "normal",
         "denoise": 1,
-        "model": [
-          "4",
-          0
-        ],
-        "positive": [
-          "6",
-          0
-        ],
-        "negative": [
-          "7",
-          0
-        ],
-        "latent_image": [
-          "5",
-          0
-        ]
+        "model": ["4", 0],
+        "positive": ["6", 0],
+        "negative": ["7", 0],
+        "latent_image": ["5", 0]
       },
       "class_type": "KSampler",
       "_meta": {
@@ -256,10 +222,7 @@
     "6": {
       "inputs": {
         "text": "upperbody shot,long hairs, happy, laugh, hugging a teddy bear, looking at viewers, dancing stand, cute, soft color, flowers in background, many flowers, among flowers, best quality, highres, delicate details,",
-        "clip": [
-          "4",
-          1
-        ]
+        "clip": ["4", 1]
       },
       "class_type": "CLIPTextEncode",
       "_meta": {
@@ -269,10 +232,7 @@
     "7": {
       "inputs": {
         "text": "nsfw",
-        "clip": [
-          "4",
-          1
-        ]
+        "clip": ["4", 1]
       },
       "class_type": "CLIPTextEncode",
       "_meta": {
@@ -281,14 +241,8 @@
     },
     "8": {
       "inputs": {
-        "samples": [
-          "3",
-          0
-        ],
-        "vae": [
-          "4",
-          2
-        ]
+        "samples": ["3", 0],
+        "vae": ["4", 2]
       },
       "class_type": "VAEDecode",
       "_meta": {
@@ -298,10 +252,7 @@
     "9": {
       "inputs": {
         "filename_prefix": "AIPG_Image",
-        "images": [
-          "8",
-          0
-        ]
+        "images": ["8", 0]
       },
       "class_type": "SaveImage",
       "_meta": {
