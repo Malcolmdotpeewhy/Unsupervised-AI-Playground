@@ -56,9 +56,8 @@
               :class="textInference.fontSizeClass"
               v-html="getParsedMarkdown(message.id + '-user', message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
               v-html="
-                getRenderedMarkdown(
+                memoizedParseAndSanitize(
                   message.parts.find((part) => part.type === 'text')?.text ?? '',
-                  openAiCompatibleChat.processing && i === activeConversation.length - 1,
                 )
               "
             ></div>
@@ -170,18 +169,16 @@
               <div
                 v-html="getParsedMarkdown(message.id + '-text', message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
                   v-html="
-                    getRenderedMarkdown(
+                    memoizedParseAndSanitize(
                       message.parts.find((part) => part.type === 'reasoning')?.text ?? '',
-                      openAiCompatibleChat.processing && i === activeConversation.length - 1,
                     )
                   "
                 ></div>
               </template>
               <div
                 v-html="
-                  getRenderedMarkdown(
+                  memoizedParseAndSanitize(
                     message.parts.find((part) => part.type === 'text')?.text ?? '',
-                    openAiCompatibleChat.processing && i === activeConversation.length - 1,
                   )
                 "
               ></div>
@@ -349,6 +346,38 @@ const languages = i18nState
 const autoScrollEnabled = ref(true)
 const showScrollButton = ref(false)
 const chatPanel = ref<HTMLElement | null>(null)
+
+// Memoization cache for parsed and sanitized markdown
+// Prevents expensive re-parsing of unchanged messages during streaming and scrolling
+const parseCache = new Map<string, string>()
+const MAX_CACHE_SIZE = 1000
+
+function memoizedParseAndSanitize(text: string): string {
+  if (!text) return ''
+  if (parseCache.has(text)) {
+    // Re-insert to maintain LRU order
+    const cached = parseCache.get(text)!
+    parseCache.delete(text)
+    parseCache.set(text, cached)
+    return cached
+  }
+
+  // Parse and sanitize
+  const parsed = parse(text) as string
+  const result = sanitizeMarkdown(parsed)
+
+  // Manage cache size
+  if (parseCache.size >= MAX_CACHE_SIZE) {
+    // Remove oldest entry (Map iterates in insertion order)
+    const firstKey = parseCache.keys().next().value
+    if (firstKey !== undefined) {
+      parseCache.delete(firstKey)
+    }
+  }
+
+  parseCache.set(text, result)
+  return result
+}
 
 const activeConversation = computed(() => openAiCompatibleChat.messages)
 const showThinkingTextPerMessageId = reactive<Record<string, boolean>>({})
