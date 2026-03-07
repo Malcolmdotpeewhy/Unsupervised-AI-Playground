@@ -5,7 +5,12 @@
     class="flex shrink-0 flex-col overflow-y-auto bg-gradient-to-r from-[#05010fb4]/20 to-[#05010fb4]/70 transition-all"
   >
     <div class="flex justify-end">
-      <button @click="isHistoryVisible = !isHistoryVisible" class="m-2 flex text-foreground">
+      <button
+        @click="isHistoryVisible = !isHistoryVisible"
+        class="m-2 flex text-foreground"
+        :aria-label="isHistoryVisible ? languages.COM_HIDE_HISTORY : languages.COM_SHOW_HISTORY"
+        :title="isHistoryVisible ? languages.COM_HIDE_HISTORY : languages.COM_SHOW_HISTORY"
+      >
         <img
           v-if="!isHistoryVisible"
           :class="textInference.iconSizeClass"
@@ -188,6 +193,7 @@
 <script setup lang="ts">
 import { useConversations } from '@/assets/js/store/conversations'
 import { useTextInference } from '@/assets/js/store/textInference'
+import { useI18N } from '@/assets/js/store/i18n'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -224,6 +230,7 @@ import {
 
 const conversations = useConversations()
 const textInference = useTextInference()
+const languages = useI18N().state
 const isHistoryVisible = ref(false)
 
 const menuOpenKey = ref<string | null>(null)
