@@ -164,6 +164,8 @@
             v-if="readyForNewSubmit"
             @click="handleSubmitPromptClick"
             class="px-3 py-1.5 bg-primary hover:bg-primary/80 rounded-lg text-sm min-w-[44px]"
+            :aria-label="i18nState.COM_GENERATE"
+            :title="i18nState.COM_GENERATE"
           >
             →
           </Button>
@@ -171,6 +173,8 @@
             v-else-if="!isStopping"
             @click="handleCancelClick"
             class="px-3 py-1.5 bg-red-600 hover:bg-red-500 rounded-lg text-sm min-w-[44px] flex items-center justify-center"
+            :aria-label="i18nState.COM_STOP"
+            :title="i18nState.COM_STOP"
           >
             <i class="svg-icon w-4 h-4 i-stop"></i>
           </Button>
@@ -178,6 +182,8 @@
             v-else
             disabled
             class="px-3 py-1.5 bg-red-400 cursor-not-allowed rounded-lg text-sm min-w-[44px] flex items-center justify-center"
+            :aria-label="i18nState.COM_GENERATING"
+            :title="i18nState.COM_GENERATING"
           >
             <i class="svg-icon w-4 h-4 i-loading"></i>
           </Button>

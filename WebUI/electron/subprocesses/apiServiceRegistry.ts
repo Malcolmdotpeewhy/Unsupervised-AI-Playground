@@ -76,10 +76,15 @@ export class ApiServiceRegistryImpl implements ApiServiceRegistry {
     return this.getRegistered().map((service) => service.get_info())
   }
 
-  async validateVRAMForModelLoad(minimumRequiredBytes: number = 2 * 1024 * 1024 * 1024): Promise<boolean> {
+  async validateVRAMForModelLoad(
+    minimumRequiredBytes: number = 2 * 1024 * 1024 * 1024,
+  ): Promise<boolean> {
     const vram = await getSystemVRAM()
     if (vram > 0 && vram < minimumRequiredBytes) {
-      appLoggerInstance.warn(`VRAM ${vram} is below minimum required ${minimumRequiredBytes}. Hardware constraints might trigger an OOM.`, 'apiServiceRegistry')
+      appLoggerInstance.warn(
+        `VRAM ${vram} is below minimum required ${minimumRequiredBytes}. Hardware constraints might trigger an OOM.`,
+        'apiServiceRegistry',
+      )
       return false
     }
     return true

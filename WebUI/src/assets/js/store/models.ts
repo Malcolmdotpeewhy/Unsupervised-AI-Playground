@@ -12,7 +12,17 @@ export type ModelLists = {
   embedding: string[]
 } & { [key: string]: Array<string> }
 
-export type ModelType = 'embedding' | 'undefined' | LlmBackend | 'checkpoints' | 'lora' | 'vae' | 'controlnet' | 'unet' | 'stableDiffusion' | (string & {})
+export type ModelType =
+  | 'embedding'
+  | 'undefined'
+  | LlmBackend
+  | 'checkpoints'
+  | 'lora'
+  | 'vae'
+  | 'controlnet'
+  | 'unet'
+  | 'stableDiffusion'
+  | (string & {})
 
 export type Model = {
   name: string
@@ -131,7 +141,7 @@ export const useModels = defineStore(
       console.log('Models refreshed', models.value)
     }
 
-    async function download(_models: DownloadModelParam[]) { }
+    async function download(_models: DownloadModelParam[]) {}
     async function addModel(model: Model) {
       // Store metadata for custom models
       if (!model.isPredefined) {
