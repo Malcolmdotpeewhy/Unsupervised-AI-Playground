@@ -6,3 +6,7 @@ In Vue.js, inline function calls like `sanitizeMarkdown(parse(text))` inside `v-
 ## 2024-05-17 - Memoization for Markdown Parsing in v-for Loops
 **Learning:** The Vue.js frontend is highly sensitive to function calls inside `v-for` loops, especially `v-html` template interpolations. Calling expensive operations like markdown parsing (`parse`) directly in the template causes severe render thrashing.
 **Action:** Always use memoization (e.g., Map-based LRU caching) for expensive operations. Crucially, when streaming LLM text, bypass the cache during active streaming and only cache the final text to prevent rapid cache evictions.
+
+## 2024-06-25 - Computed Properties vs Template Method Calls
+**Learning:** Calling complex inline functions that return new object/array instances inside Vue template loops (e.g., `<ThumbnailPreviewStrip :items="images(conversation)" />`) causes severe render thrashing. Every re-render creates a new array reference, triggering full re-renders of the child components, even if the underlying data hasn't changed.
+**Action:** Extract expensive data extraction/transformation logic used in templates into `computed` properties that return a keyed record (e.g., `Record<string, ComputedData>`). This ensures the template accesses cached references (`conversationImages[key]`) and prevents unnecessary child component re-renders.
