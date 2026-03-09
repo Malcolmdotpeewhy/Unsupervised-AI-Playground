@@ -4,11 +4,11 @@
       <h3 class="font-semibold text-sm">Pipeline Template Editor</h3>
       <Button variant="outline" size="sm" @click="$emit('close')">Close</Button>
     </div>
-    
+
     <div class="flex flex-col gap-2">
       <label class="text-xs">Select Preset to Edit:</label>
-      <select 
-        v-model="selectedPresetId" 
+      <select
+        v-model="selectedPresetId"
         class="p-2 border border-border rounded-md bg-card text-foreground text-sm"
         @change="loadSelectedPreset"
       >
@@ -21,11 +21,11 @@
 
     <div v-if="selectedPresetId" class="mt-4 flex flex-col gap-2 h-full">
       <label class="text-xs">Raw JSON Workflow Structure:</label>
-      <textarea 
-        v-model="templateJson" 
+      <textarea
+        v-model="templateJson"
         class="w-full h-[250px] p-2 border border-border rounded-md bg-card text-foreground font-mono text-xs whitespace-pre"
       ></textarea>
-      
+
       <div class="flex justify-end gap-2 mt-2">
         <Button variant="default" size="sm" @click="saveTemplate">Save Template</Button>
       </div>
@@ -46,7 +46,7 @@ const selectedPresetId = ref('')
 const templateJson = ref('')
 
 function loadSelectedPreset() {
-  const preset = availablePresets.value.find(p => p.id === selectedPresetId.value)
+  const preset = availablePresets.value.find((p) => p.id === selectedPresetId.value)
   if (preset) {
     templateJson.value = JSON.stringify(preset.workflow, null, 2)
   }
@@ -54,7 +54,7 @@ function loadSelectedPreset() {
 
 function saveTemplate() {
   try {
-    const preset = availablePresets.value.find(p => p.id === selectedPresetId.value)
+    const preset = availablePresets.value.find((p) => p.id === selectedPresetId.value)
     if (preset) {
       const parsed = JSON.parse(templateJson.value)
       preset.workflow = parsed
