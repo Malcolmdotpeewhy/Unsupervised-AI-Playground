@@ -165,82 +165,12 @@
                 v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
               ></div>
 
-              <!-- Render tool parts -->
-              <template
-                v-for="part in message.parts.filter((p) => p.type.startsWith('tool-'))"
-                :key="
-                  part.type === 'tool-comfyUI'
-                    ? `tool-${part.toolCallId}`
-                    : part.type === 'tool-comfyUiImageEdit'
-                      ? `tool-${part.toolCallId}`
-                      : part.type === 'tool-visualizeObjectDetections'
-                        ? `tool-${part.toolCallId}`
-                        : undefined
-                "
-              >
-                <span>I'm using the tool {{ part.type.replace('tool-', '') }}</span>
-                <template v-if="part.type === 'tool-comfyUI'">
-                  <div class="mt-1 pt-1">
-                    <span
-                      >Generating using the preset
-                      <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
-                    >
-                    <br />
-                    <br />
-                    <span
-                      ><em>{{ part.input?.prompt ?? '' }}</em></span
-                    >
-                    <ChatWorkflowResult
-                      :images="getToolImages(part)"
-                      :processing="getToolProcessing(part)"
-                      :currentState="getToolCurrentState(part)"
-                      :stepText="getToolStepText(part)"
-                      :toolCallId="(part as any).toolCallId"
-                    />
-                  </div>
-                </template>
-                <template v-else-if="part.type === 'tool-comfyUiImageEdit'">
-                  <div class="mt-1 pt-1">
-                    <span
-                      >Editing using the preset <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
-                    >
-                    <br />
-                    <br />
-                    <span
-                      ><em>{{ part.input?.prompt ?? '' }}</em></span
-                    >
-                    <ChatWorkflowResult
-                      :images="getToolImages(part)"
-                      :processing="getToolProcessing(part)"
-                      :currentState="getToolCurrentState(part)"
-                      :stepText="getToolStepText(part)"
-                      :toolCallId="(part as any).toolCallId"
-                    />
-                  </div>
-                </template>
-                <template v-else-if="part.type === 'tool-visualizeObjectDetections'">
-                  <div class="mt-1 pt-1">
-                    <div
-                      v-if="
-                        part.state === 'output-available' && (part as any).output?.annotatedImageUrl
-                      "
-                    >
-                      <img
-                        :src="(part as any).output.annotatedImageUrl"
-                        alt="Annotated image with object detections"
-                        class="max-w-full rounded-md border-2 border-border"
-                      />
-                    </div>
-                    <div
-                      v-else-if="
-                        part.state === 'input-streaming' || part.state === 'input-available'
-                      "
-                    >
-                      <span class="text-muted-foreground">Visualizing object detections...</span>
-                    </div>
-                  </div>
-                </template>
-              </template>
+              <!-- Render tool parts using dedicated child component to prevent array render thrashing -->
+              <ChatToolRenderer
+                v-if="message.parts.some((p) => p.type.startsWith('tool-'))"
+                :parts="message.parts"
+                :toolProgressMap="toolProgressMap"
+              />
             </div>
             <div class="answer-tools flex gap-3 items-center text-muted-foreground">
               <button
@@ -305,15 +235,13 @@ import { sanitizeMarkdown } from '@/lib/sanitize'
 import LoadingBar from '@/components/LoadingBar.vue'
 import { usePromptStore } from '@/assets/js/store/promptArea.ts'
 import { useOpenAiCompatibleChat } from '@/assets/js/store/openAiCompatibleChat'
-import ChatWorkflowResult from '@/components/ChatWorkflowResult.vue'
+import ChatToolRenderer from '@/components/ChatToolRenderer.vue'
 import {
   useImageGenerationPresets,
   type MediaItem,
   type GenerateState,
 } from '@/assets/js/store/imageGenerationPresets'
 import { useComfyUiPresets } from '@/assets/js/store/comfyUiPresets'
-import { ToolUIPart } from 'ai'
-import { AipgTools } from '@/assets/js/tools/tools'
 import { base64ToString } from 'uint8array-extras'
 import { UserCircleIcon } from '@heroicons/vue/24/outline'
 
@@ -496,60 +424,6 @@ function copyText(text: string) {
     .catch((e) => console.error('Error while copying text to clipboard', e))
 }
 
-// Helper functions for tool rendering
-function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
-  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return []
-  const toolCallId = part.toolCallId
-  const progress = toolProgressMap[toolCallId]
-
-  // If we have progress tracking with images, use those
-  if (progress && progress.images.length > 0) {
-    return progress.images
-  }
-
-  // Otherwise, use output images if available
-  if (part.state === 'output-available') {
-    if (!part.output) return []
-    return part.output.images.map((img) => ({ ...img, state: 'done' as const }))
-  }
-
-  return []
-}
-
-function getToolProcessing(part: ToolUIPart<AipgTools>): boolean {
-  const toolCallId = part.toolCallId
-  const progress = toolProgressMap[toolCallId]
-
-  // If we have progress tracking, use that
-  if (progress) {
-    return progress.processing
-  }
-
-  // Otherwise, check part state
-  return part.state === 'input-streaming' || part.state === 'input-available'
-}
-
-function getToolCurrentState(part: ToolUIPart<AipgTools>): GenerateState | undefined {
-  const toolCallId = part.toolCallId
-  const progress = toolProgressMap[toolCallId]
-
-  if (progress && progress.currentState) {
-    return progress.currentState as GenerateState
-  }
-
-  return undefined
-}
-
-function getToolStepText(part: ToolUIPart<AipgTools>): string | undefined {
-  const toolCallId = part.toolCallId
-  const progress = toolProgressMap[toolCallId]
-
-  if (progress && progress.stepText) {
-    return progress.stepText
-  }
-
-  return undefined
-}
 
 // Watch for new tool calls starting to initialize their image tracking
 watch(
