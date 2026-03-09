@@ -55,11 +55,6 @@
             <div
               :class="textInference.fontSizeClass"
               v-html="getParsedMarkdown(message.id + '-user', message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
-              v-html="
-                memoizedParseAndSanitize(
-                  message.parts.find((part) => part.type === 'text')?.text ?? '',
-                )
-              "
             ></div>
             <button
               class="flex items-center gap-1 text-xs text-muted-foreground mt-1"
@@ -168,19 +163,6 @@
               </template>
               <div
                 v-html="getParsedMarkdown(message.id + '-text', message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
-                  v-html="
-                    memoizedParseAndSanitize(
-                      message.parts.find((part) => part.type === 'reasoning')?.text ?? '',
-                    )
-                  "
-                ></div>
-              </template>
-              <div
-                v-html="
-                  memoizedParseAndSanitize(
-                    message.parts.find((part) => part.type === 'text')?.text ?? '',
-                  )
-                "
               ></div>
 
               <!-- Render tool parts -->
@@ -347,38 +329,6 @@ const autoScrollEnabled = ref(true)
 const showScrollButton = ref(false)
 const chatPanel = ref<HTMLElement | null>(null)
 
-// Memoization cache for parsed and sanitized markdown
-// Prevents expensive re-parsing of unchanged messages during streaming and scrolling
-const parseCache = new Map<string, string>()
-const MAX_CACHE_SIZE = 1000
-
-function memoizedParseAndSanitize(text: string): string {
-  if (!text) return ''
-  if (parseCache.has(text)) {
-    // Re-insert to maintain LRU order
-    const cached = parseCache.get(text)!
-    parseCache.delete(text)
-    parseCache.set(text, cached)
-    return cached
-  }
-
-  // Parse and sanitize
-  const parsed = parse(text) as string
-  const result = sanitizeMarkdown(parsed)
-
-  // Manage cache size
-  if (parseCache.size >= MAX_CACHE_SIZE) {
-    // Remove oldest entry (Map iterates in insertion order)
-    const firstKey = parseCache.keys().next().value
-    if (firstKey !== undefined) {
-      parseCache.delete(firstKey)
-    }
-  }
-
-  parseCache.set(text, result)
-  return result
-}
-
 const activeConversation = computed(() => openAiCompatibleChat.messages)
 const showThinkingTextPerMessageId = reactive<Record<string, boolean>>({})
 const showRagSourcePerMessageId = reactive<Record<string, boolean>>({})
@@ -390,13 +340,15 @@ const ragSourcePerMessageId = reactive<Record<string, string>>({})
 const markdownCache = new Map<string, string>()
 const MAX_CACHE_SIZE = 200
 
-function getParsedMarkdown(cacheKey: string, text: string, isProcessing: boolean): string {
+function getParsedMarkdown(_cacheKey: string, text: string, isProcessing: boolean): string {
+  // _cacheKey is kept for backwards compatibility in template arguments but no longer used
+  // to avoid large string concatenations and unnecessary memory usage. The text itself is a perfect unique key.
   if (!text) return ''
 
   // Try to return a cached result if the message is completely generated
   // If the message is actively streaming (processing), we bypass the cache entirely to avoid storing every intermediate string state
-  if (!isProcessing && markdownCache.has(cacheKey + text)) {
-    return markdownCache.get(cacheKey + text)!
+  if (!isProcessing && markdownCache.has(text)) {
+    return markdownCache.get(text)!
   }
 
   const parsed = sanitizeMarkdown(parse(text) as string)
@@ -409,38 +361,10 @@ function getParsedMarkdown(cacheKey: string, text: string, isProcessing: boolean
         markdownCache.delete(firstKey)
       }
     }
-    markdownCache.set(cacheKey + text, parsed)
+    markdownCache.set(text, parsed)
   }
 
   return parsed
-// Markdown rendering cache to prevent render thrashing in v-for loops
-const markdownCache = new Map<string, string>()
-const MAX_CACHE_SIZE = 100
-
-function getRenderedMarkdown(text: string, isStreaming: boolean): string {
-  if (!text) return ''
-
-  // Bypass cache during active streaming to prevent rapid evictions and memory thrashing
-  if (isStreaming) {
-    return sanitizeMarkdown(parse(text) as string)
-  }
-
-  // Use cached version if available
-  if (markdownCache.has(text)) {
-    return markdownCache.get(text)!
-  }
-
-  // Parse, sanitize, and cache
-  const rendered = sanitizeMarkdown(parse(text) as string)
-
-  // Maintain LRU cache size limit
-  if (markdownCache.size >= MAX_CACHE_SIZE) {
-    const firstKey = markdownCache.keys().next().value
-    if (firstKey) markdownCache.delete(firstKey)
-  }
-
-  markdownCache.set(text, rendered)
-  return rendered
 }
 
 // Track progress for active tool calls
