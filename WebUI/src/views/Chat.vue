@@ -54,7 +54,7 @@
             />
             <div
               :class="textInference.fontSizeClass"
-              v-html="getParsedMarkdown(message.id + '-user', message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
+              v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
             ></div>
             <button
               class="flex items-center gap-1 text-xs text-muted-foreground mt-1"
@@ -158,11 +158,11 @@
                 <div
                   v-if="showThinkingTextPerMessageId[message.id]"
                   class="border-l-2 border-border pl-4 text-muted-foreground"
-                  v-html="getParsedMarkdown(message.id + '-reasoning', message.parts.find((part) => part.type === 'reasoning')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                  v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'reasoning')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
                 ></div>
               </template>
               <div
-                v-html="getParsedMarkdown(message.id + '-text', message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
               ></div>
 
               <!-- Render tool parts -->
@@ -329,42 +329,50 @@ const autoScrollEnabled = ref(true)
 const showScrollButton = ref(false)
 const chatPanel = ref<HTMLElement | null>(null)
 
+
 const activeConversation = computed(() => openAiCompatibleChat.messages)
 const showThinkingTextPerMessageId = reactive<Record<string, boolean>>({})
 const showRagSourcePerMessageId = reactive<Record<string, boolean>>({})
 
 const ragSourcePerMessageId = reactive<Record<string, string>>({})
 
-// Markdown parsing cache to prevent render thrashing during streaming
-// We only want to cache fully generated messages (isProcessing = false)
+// Markdown rendering cache to prevent render thrashing in v-for loops
+// We only want to cache fully generated messages. If the message is actively
+// streaming (processing), we bypass the cache entirely to avoid storing every
+// intermediate string state and causing rapid cache evictions.
 const markdownCache = new Map<string, string>()
-const MAX_CACHE_SIZE = 200
+const MAX_CACHE_SIZE = 1000
 
-function getParsedMarkdown(_cacheKey: string, text: string, isProcessing: boolean): string {
-  // _cacheKey is kept for backwards compatibility in template arguments but no longer used
-  // to avoid large string concatenations and unnecessary memory usage. The text itself is a perfect unique key.
+function getRenderedMarkdown(text: string, isStreaming: boolean): string {
   if (!text) return ''
 
-  // Try to return a cached result if the message is completely generated
-  // If the message is actively streaming (processing), we bypass the cache entirely to avoid storing every intermediate string state
-  if (!isProcessing && markdownCache.has(text)) {
-    return markdownCache.get(text)!
+  // Bypass cache during active streaming to prevent rapid evictions and memory thrashing
+  if (isStreaming) {
+    return sanitizeMarkdown(parse(text) as string)
   }
 
-  const parsed = sanitizeMarkdown(parse(text) as string)
+  // Use cached version if available
+  if (markdownCache.has(text)) {
+    // Re-insert to maintain LRU order
+    const cached = markdownCache.get(text)!
+    markdownCache.delete(text)
+    markdownCache.set(text, cached)
+    return cached
+  }
 
-  // Only insert into the cache if the message finished generating.
-  if (!isProcessing) {
-    if (markdownCache.size >= MAX_CACHE_SIZE) {
-      const firstKey = markdownCache.keys().next().value
-      if (firstKey !== undefined) {
-        markdownCache.delete(firstKey)
-      }
+  // Parse, sanitize, and cache
+  const rendered = sanitizeMarkdown(parse(text) as string)
+
+  // Maintain LRU cache size limit
+  if (markdownCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = markdownCache.keys().next().value
+    if (firstKey !== undefined) {
+      markdownCache.delete(firstKey)
     }
-    markdownCache.set(text, parsed)
   }
 
-  return parsed
+  markdownCache.set(text, rendered)
+  return rendered
 }
 
 // Track progress for active tool calls
