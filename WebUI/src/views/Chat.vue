@@ -54,7 +54,12 @@
             />
             <div
               :class="textInference.fontSizeClass"
-              v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
+              v-html="
+                getRenderedMarkdown(
+                  message.parts.find((part) => part.type === 'text')?.text ?? '',
+                  false,
+                )
+              "
             ></div>
             <button
               class="flex items-center gap-1 text-xs text-muted-foreground mt-1"
@@ -158,11 +163,21 @@
                 <div
                   v-if="showThinkingTextPerMessageId[message.id]"
                   class="border-l-2 border-border pl-4 text-muted-foreground"
-                  v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'reasoning')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                  v-html="
+                    getRenderedMarkdown(
+                      message.parts.find((part) => part.type === 'reasoning')?.text ?? '',
+                      i + 1 == activeConversation.length && openAiCompatibleChat.processing,
+                    )
+                  "
                 ></div>
               </template>
               <div
-                v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                v-html="
+                  getRenderedMarkdown(
+                    message.parts.find((part) => part.type === 'text')?.text ?? '',
+                    i + 1 == activeConversation.length && openAiCompatibleChat.processing,
+                  )
+                "
               ></div>
 
               <!-- Render tool parts -->
@@ -328,7 +343,6 @@ const languages = i18nState
 const autoScrollEnabled = ref(true)
 const showScrollButton = ref(false)
 const chatPanel = ref<HTMLElement | null>(null)
-
 
 const activeConversation = computed(() => openAiCompatibleChat.messages)
 const showThinkingTextPerMessageId = reactive<Record<string, boolean>>({})
