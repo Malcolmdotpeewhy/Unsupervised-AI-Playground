@@ -34,7 +34,7 @@ export class ProcessError extends Error {
 export async function spawnProcessAsync(
   command: string,
   args: string[] = [],
-  logHandler: (data: string) => void = () => { },
+  logHandler: (data: string) => void = () => {},
   extraEnv?: object,
   workDir?: string,
 ): Promise<string> {
@@ -119,19 +119,26 @@ export async function copyFileWithDirs(src: string, dest: string) {
 
 export async function getSystemVRAM(): Promise<number> {
   try {
-    const output = await spawnProcessAsync('wmic', ['path', 'win32_VideoController', 'get', 'AdapterRAM']);
-    const lines = output.split('\n').map(l => l.trim()).filter(l => l.length > 0 && /\d/.test(l));
-    let maxVram = 0;
+    const output = await spawnProcessAsync('wmic', [
+      'path',
+      'win32_VideoController',
+      'get',
+      'AdapterRAM',
+    ])
+    const lines = output
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0 && /\d/.test(l))
+    let maxVram = 0
     for (const line of lines) {
-      const vram = parseInt(line, 10);
+      const vram = parseInt(line, 10)
       if (!isNaN(vram) && vram > maxVram) {
-        maxVram = vram; // bytes
+        maxVram = vram // bytes
       }
     }
-    return maxVram;
+    return maxVram
   } catch (e) {
-    console.warn("Failed retrieving VRAM:", e);
-    return 0;
+    console.warn('Failed retrieving VRAM:', e)
+    return 0
   }
 }
-

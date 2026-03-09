@@ -6,6 +6,7 @@
         class="w-6 h-6 rounded-sm flex justify-center items-center bg-muted"
         @click="generateRandom"
         :title="languages.COM_REGENERATE"
+        :aria-label="languages.COM_REGENERATE"
       >
         <span class="svg-icon i-dice text-foreground w-4 h-4"></span>
       </button>
@@ -13,6 +14,7 @@
         class="w-6 h-6 rounded-sm flex justify-center items-center bg-muted"
         @click="resetToDefault"
         :title="languages.COM_RESET"
+        :aria-label="languages.COM_RESET"
       >
         <span class="svg-icon i-reset text-foreground w-4 h-4"></span>
       </button>

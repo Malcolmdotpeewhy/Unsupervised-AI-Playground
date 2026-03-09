@@ -1,0 +1,31 @@
+name: Combine Dependabot PRs
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight
+  workflow_dispatch:
+
+jobs:
+  combine-prs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Combine Pull Requests
+        id: combine
+        uses: clhore/combine-dependabot-pull-requests@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          base_branch: main
+          combine_branch: combine-dependabot
+
+      - name: Automerge Combined PR
+        uses: "pascalgn/automerge-action@v0.16.2"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          MERGE_LABELS: "" # Set to empty if you want to merge without specific labels
+          MERGE_METHOD: "merge"
+          MERGE_FORKS: "false"
+          MERGE_RETRIES: "6"
+          MERGE_RETRY_SLEEP: "10000"

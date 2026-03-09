@@ -11,7 +11,9 @@
       <span class="text-lg font-bold">{{ languages.RAG_SEARCHABLE_DOCUMENTS }}</span>
       <button
         class="svg-icon i-close w-7 h-7 hover:text-primary transition-colors duration-200"
+        :aria-label="languages.COM_CLOSE"
         @click="closeRagPanel"
+        :aria-label="languages.COM_CLOSE"
       ></button>
     </div>
 
@@ -47,6 +49,7 @@
           <button
             class="bg-muted rounded-xs w-6 h-6 flex items-center justify-center hover:bg-red-700/50 transition-colors duration-200"
             :title="languages.COM_DELETE_FILE"
+            :aria-label="languages.COM_DELETE_FILE"
             @click="deleteFile(file.hash)"
           >
             <span class="svg-icon text-foreground i-delete w-4 h-4"></span>
@@ -72,6 +75,7 @@
           <button
             @click="chooseUploadFiles"
             :title="languages.COM_ADD_FILE_TO_RAG"
+            :aria-label="languages.COM_ADD_FILE_TO_RAG"
             class="bg-primary rounded-sm px-4 h-8 flex items-center justify-center hover:bg-primary/80 transition-colors duration-200"
           >
             <span class="svg-icon text-foreground i-add w-5 h-5 mr-2"></span>
@@ -84,6 +88,7 @@
           <button
             @click="deleteAllFiles"
             :title="languages.COM_DELETE_ALL_FILES"
+            :aria-label="languages.COM_DELETE_ALL_FILES"
             class="bg-muted/50 rounded-sm px-2 h-8 flex items-center justify-center hover:bg-destructive/50 transition-colors duration-200"
           >
             <span class="svg-icon text-foreground i-delete w-4 h-4 mr-1"></span>
@@ -111,6 +116,7 @@
       <button
         @click="chooseUploadFiles"
         :title="languages.COM_ADD_FILE_TO_RAG"
+        :aria-label="languages.COM_ADD_FILE_TO_RAG"
         class="bg-primary py-2 px-6 rounded-sm hover:bg-primary/80 transition-colors duration-200 flex items-center justify-center gap-2"
       >
         <span class="svg-icon text-foreground i-add w-5 h-5"></span>

@@ -145,11 +145,16 @@
         <div :data-tooltip="i18nState.PRESET_RELOAD_INFO">
           <button
             class="svg-icon i-refresh w-5 h-5"
+            :aria-label="i18nState.PRESET_RELOAD_INFO"
             @click="presetsStore.loadPresetsFromFiles"
           ></button>
         </div>
         <div :data-tooltip="i18nState.PRESET_DOWNLOAD_INFO">
-          <button class="svg-icon i-download-cloud w-5 h-5" @click="loadPresetsFromIntel"></button>
+          <button
+            class="svg-icon i-download-cloud w-5 h-5"
+            :aria-label="i18nState.PRESET_DOWNLOAD_INFO"
+            @click="loadPresetsFromIntel"
+          ></button>
         </div>
       </div>
     </div>
@@ -167,10 +172,10 @@
         Open Pipeline Template Editor
       </button>
     </div>
-    
-    <PipelineTemplateEditor 
-      v-if="isTemplateEditorVisible" 
-      @close="isTemplateEditorVisible = false" 
+
+    <PipelineTemplateEditor
+      v-if="isTemplateEditorVisible"
+      @close="isTemplateEditorVisible = false"
     />
   </div>
 </template>
