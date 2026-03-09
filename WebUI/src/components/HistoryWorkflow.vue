@@ -33,7 +33,7 @@
             </div>
             <ThumbnailPreviewStrip
               class="group-open/details:hidden self-center"
-              :items="imageGroup.images.filter((item) => item.type === 'image').reverse()"
+              :items="imageGroup.previewImages"
             />
           </summary>
 
@@ -249,6 +249,7 @@ const imagesByDay = computed(() => {
     dateKey,
     label: value.label,
     images: value.images,
+    previewImages: value.images.filter((item) => item.type === 'image').reverse(),
   }))
 })
 
