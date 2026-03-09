@@ -11,6 +11,7 @@
       <span class="text-lg font-bold">{{ languages.RAG_SEARCHABLE_DOCUMENTS }}</span>
       <button
         class="svg-icon i-close w-7 h-7 hover:text-primary transition-colors duration-200"
+        :aria-label="languages.COM_CLOSE"
         @click="closeRagPanel"
       ></button>
     </div>
