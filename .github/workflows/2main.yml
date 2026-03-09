@@ -1,0 +1,39 @@
+name: Auto-Combine and Merge PRs
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  combine-and-merge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Combine Pull Requests
+        id: combine
+        uses: github/combine-prs@v5.1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          combine_branch_name: auto-combined-branch
+          must_rebase: true
+          # This will look for all open PRs to combine
+          select_label: "" 
+
+      - name: Automerge Combined PR
+        if: steps.combine.outputs.pr_number != ''
+        uses: "pascalgn/automerge-action@v0.16.2"
+        env:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          MERGE_METHOD: "merge"
+          MERGE_FORKS: "false"
+          # This targets the specific PR created by the previous step
+          PULL_REQUEST: ${{ steps.combine.outputs.pr_number }}
