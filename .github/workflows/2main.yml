@@ -24,7 +24,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           combine_branch_name: auto-combined-branch
-          must_rebase: true
+
           # This will look for all open PRs to combine
           select_label: "" 
 
