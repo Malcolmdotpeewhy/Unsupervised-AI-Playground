@@ -4,6 +4,7 @@
     class="absolute bottom-65 left-1/2 transform -translate-x-1/2 bg-background text-foreground p-2 rounded-full shadow-lg z-50 hover:bg-muted transition-colors"
     @click="scrollToBottom()"
     title="Scroll to bottom"
+    aria-label="Scroll to bottom"
   >
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -101,7 +102,7 @@
                   :class="textInference.nameSizeClass"
                 >
                   Source Docs
-                  <button class="ml-1">
+                  <button class="ml-1" aria-label="Toggle source docs">
                     <img
                       v-if="showRagSourcePerMessageId[message.id]"
                       src="../assets/svg/arrow-up.svg"
@@ -146,6 +147,7 @@
                         !showThinkingTextPerMessageId[message.id]
                     "
                     class="ml-1"
+                    aria-label="Toggle reasoning"
                   >
                     <img
                       v-if="showThinkingTextPerMessageId[message.id]"
@@ -246,6 +248,7 @@
               <button
                 class="flex items-end"
                 :title="languages.COM_COPY"
+                :aria-label="languages.COM_COPY"
                 @click="copyText(message.parts.find((part) => part.type === 'text')?.text || '')"
               >
                 <span class="svg-icon i-copy w-4 h-4"></span>
@@ -254,6 +257,7 @@
               <button
                 class="flex items-end"
                 :title="languages.COM_REGENERATE"
+                :aria-label="languages.COM_REGENERATE"
                 @click="() => openAiCompatibleChat.regenerate(message.id)"
                 v-if="i + 1 == activeConversation.length"
                 :disabled="openAiCompatibleChat.processing"
@@ -265,6 +269,7 @@
               <button
                 class="flex items-end"
                 :title="languages.COM_DELETE"
+                :aria-label="languages.COM_DELETE"
                 @click="
                   () => {
                     openAiCompatibleChat.removeMessage(message.id)

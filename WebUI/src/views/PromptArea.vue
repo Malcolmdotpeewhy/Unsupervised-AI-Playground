@@ -25,6 +25,7 @@
             :disabled="textInference.isMinSize"
             class="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             title="Decrease font size"
+            aria-label="Decrease font size"
           >
             <MagnifyingGlassMinusIcon class="size-5" />
           </button>
@@ -33,6 +34,7 @@
             :disabled="textInference.isMaxSize"
             class="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             title="Increase font size"
+            aria-label="Increase font size"
           >
             <MagnifyingGlassPlusIcon class="size-5" />
           </button>
@@ -60,6 +62,7 @@
               @click="textInference.updateFileCheckStatus(doc.hash, false)"
               class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
               title="Remove from context"
+              aria-label="Remove from context"
             >
               <XMarkIcon class="size-4" />
             </button>
@@ -93,6 +96,7 @@
               @click="removeImage(preview.id)"
               class="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background rounded-full p-0.5 text-muted-foreground hover:text-destructive"
               title="Remove image"
+              aria-label="Remove image"
             >
               <XMarkIcon class="size-4" />
             </button>
@@ -133,6 +137,7 @@
             :title="
               !speechToText.enabled ? 'Enable Speech To Text in settings to use voice input' : ''
             "
+            :aria-label="audioRecorder.isTranscribing ? 'Transcribing audio' : (audioRecorder.isRecording ? 'Stop recording' : 'Record audio')"
           >
             <i
               v-if="!audioRecorder.isTranscribing"
@@ -164,6 +169,7 @@
             v-if="readyForNewSubmit"
             @click="handleSubmitPromptClick"
             class="px-3 py-1.5 bg-primary hover:bg-primary/80 rounded-lg text-sm min-w-[44px]"
+            aria-label="Submit prompt"
           >
             →
           </Button>
@@ -171,6 +177,7 @@
             v-else-if="!isStopping"
             @click="handleCancelClick"
             class="px-3 py-1.5 bg-red-600 hover:bg-red-500 rounded-lg text-sm min-w-[44px] flex items-center justify-center"
+            aria-label="Cancel processing"
           >
             <i class="svg-icon w-4 h-4 i-stop"></i>
           </Button>
