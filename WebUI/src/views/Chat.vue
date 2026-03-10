@@ -167,7 +167,7 @@
 
               <!-- Render tool parts -->
               <template
-                v-for="part in message.parts.filter((p) => p.type.startsWith('tool-'))"
+                v-for="(part, index) in message.parts"
                 :key="
                   part.type === 'tool-comfyUI'
                     ? `tool-${part.toolCallId}`
@@ -175,70 +175,72 @@
                       ? `tool-${part.toolCallId}`
                       : part.type === 'tool-visualizeObjectDetections'
                         ? `tool-${part.toolCallId}`
-                        : undefined
+                        : `part-${index}`
                 "
               >
-                <span>I'm using the tool {{ part.type.replace('tool-', '') }}</span>
-                <template v-if="part.type === 'tool-comfyUI'">
-                  <div class="mt-1 pt-1">
-                    <span
-                      >Generating using the preset
-                      <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
-                    >
-                    <br />
-                    <br />
-                    <span
-                      ><em>{{ part.input?.prompt ?? '' }}</em></span
-                    >
-                    <ChatWorkflowResult
-                      :images="getToolImages(part)"
-                      :processing="getToolProcessing(part)"
-                      :currentState="getToolCurrentState(part)"
-                      :stepText="getToolStepText(part)"
-                      :toolCallId="(part as any).toolCallId"
-                    />
-                  </div>
-                </template>
-                <template v-else-if="part.type === 'tool-comfyUiImageEdit'">
-                  <div class="mt-1 pt-1">
-                    <span
-                      >Editing using the preset <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
-                    >
-                    <br />
-                    <br />
-                    <span
-                      ><em>{{ part.input?.prompt ?? '' }}</em></span
-                    >
-                    <ChatWorkflowResult
-                      :images="getToolImages(part)"
-                      :processing="getToolProcessing(part)"
-                      :currentState="getToolCurrentState(part)"
-                      :stepText="getToolStepText(part)"
-                      :toolCallId="(part as any).toolCallId"
-                    />
-                  </div>
-                </template>
-                <template v-else-if="part.type === 'tool-visualizeObjectDetections'">
-                  <div class="mt-1 pt-1">
-                    <div
-                      v-if="
-                        part.state === 'output-available' && (part as any).output?.annotatedImageUrl
-                      "
-                    >
-                      <img
-                        :src="(part as any).output.annotatedImageUrl"
-                        alt="Annotated image with object detections"
-                        class="max-w-full rounded-md border-2 border-border"
+                <template v-if="part.type.startsWith('tool-')">
+                  <span>I'm using the tool {{ part.type.replace('tool-', '') }}</span>
+                  <template v-if="part.type === 'tool-comfyUI'">
+                    <div class="mt-1 pt-1">
+                      <span
+                        >Generating using the preset
+                        <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
+                      >
+                      <br />
+                      <br />
+                      <span
+                        ><em>{{ part.input?.prompt ?? '' }}</em></span
+                      >
+                      <ChatWorkflowResult
+                        :images="getToolImages(part)"
+                        :processing="getToolProcessing(part)"
+                        :currentState="getToolCurrentState(part)"
+                        :stepText="getToolStepText(part)"
+                        :toolCallId="(part as any).toolCallId"
                       />
                     </div>
-                    <div
-                      v-else-if="
-                        part.state === 'input-streaming' || part.state === 'input-available'
-                      "
-                    >
-                      <span class="text-muted-foreground">Visualizing object detections...</span>
+                  </template>
+                  <template v-else-if="part.type === 'tool-comfyUiImageEdit'">
+                    <div class="mt-1 pt-1">
+                      <span
+                        >Editing using the preset <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
+                      >
+                      <br />
+                      <br />
+                      <span
+                        ><em>{{ part.input?.prompt ?? '' }}</em></span
+                      >
+                      <ChatWorkflowResult
+                        :images="getToolImages(part)"
+                        :processing="getToolProcessing(part)"
+                        :currentState="getToolCurrentState(part)"
+                        :stepText="getToolStepText(part)"
+                        :toolCallId="(part as any).toolCallId"
+                      />
                     </div>
-                  </div>
+                  </template>
+                  <template v-else-if="part.type === 'tool-visualizeObjectDetections'">
+                    <div class="mt-1 pt-1">
+                      <div
+                        v-if="
+                          part.state === 'output-available' && (part as any).output?.annotatedImageUrl
+                        "
+                      >
+                        <img
+                          :src="(part as any).output.annotatedImageUrl"
+                          alt="Annotated image with object detections"
+                          class="max-w-full rounded-md border-2 border-border"
+                        />
+                      </div>
+                      <div
+                        v-else-if="
+                          part.state === 'input-streaming' || part.state === 'input-available'
+                        "
+                      >
+                        <span class="text-muted-foreground">Visualizing object detections...</span>
+                      </div>
+                    </div>
+                  </template>
                 </template>
               </template>
             </div>
@@ -401,6 +403,7 @@ onMounted(() => {
 onUnmounted(() => {
   promptStore.unregisterSubmitCallback('chat')
   promptStore.unregisterCancelCallback('chat')
+  toolImagesCache.clear()
 })
 
 watch(
@@ -497,23 +500,53 @@ function copyText(text: string) {
 }
 
 // Helper functions for tool rendering
+
+// Static empty array to avoid returning new array references and causing render thrashing
+const EMPTY_MEDIA_ARRAY: MediaItem[] = []
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const toolImagesCache = new Map<string, { lastState: string, lastOutput: any, cachedImages: MediaItem[] }>()
+
+// Clear cache when activeConversation completely changes (e.g. switching chats)
+watch(() => activeConversation.value, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+     toolImagesCache.clear()
+  }
+})
+
 function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
-  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return []
+  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return EMPTY_MEDIA_ARRAY
   const toolCallId = part.toolCallId
   const progress = toolProgressMap[toolCallId]
 
-  // If we have progress tracking with images, use those
+  // If we have progress tracking with images, use those directly as they are already managed in reactivity
   if (progress && progress.images.length > 0) {
     return progress.images
   }
 
-  // Otherwise, use output images if available
+  // Otherwise, use output images if available and memoize the mapped array to prevent render thrashing
   if (part.state === 'output-available') {
-    if (!part.output) return []
-    return part.output.images.map((img) => ({ ...img, state: 'done' as const }))
+    if (!part.output) return EMPTY_MEDIA_ARRAY
+
+    // Check if we've already cached the images for this specific output state
+    const cached = toolImagesCache.get(toolCallId)
+    // Only return cached if the exact output object hasn't changed reference
+    if (cached && cached.lastState === part.state && cached.lastOutput === part.output) {
+      return cached.cachedImages
+    }
+
+    // Map and cache
+    const mappedImages = part.output.images.map((img) => ({ ...img, state: 'done' as const }))
+    toolImagesCache.set(toolCallId, {
+      lastState: part.state,
+      lastOutput: part.output,
+      cachedImages: mappedImages
+    })
+
+    return mappedImages
   }
 
-  return []
+  return EMPTY_MEDIA_ARRAY
 }
 
 function getToolProcessing(part: ToolUIPart<AipgTools>): boolean {
