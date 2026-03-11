@@ -97,7 +97,7 @@
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <ThumbnailPreviewStrip :items="images(conversations.conversationList[key])" />
+      <ThumbnailPreviewStrip :items="images(key)" />
     </div>
   </div>
 </template>
@@ -134,51 +134,67 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useConversations } from '@/assets/js/store/conversations'
-import { AipgUiMessage } from '@/assets/js/store/openAiCompatibleChat'
 
 const conversations = useConversations()
 const emits = defineEmits<{
   (e: 'conversationSelected'): void
 }>()
 
-const images = (conversation: AipgUiMessage[]) => {
-  return conversation.flatMap((msg, msgIndex) =>
-    msg.parts
-      .filter(
-        (part) =>
-          (part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit') &&
-          part.state === 'output-available',
-      )
-      .map((part, partIndex) => {
-        if (
-          (part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit') &&
-          'output' in part &&
-          part.output &&
-          typeof part.output === 'object' &&
-          'images' in part.output
-        ) {
-          const images = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? []
-          return images.map((img, imgIndex) => ({
-            id: `${msgIndex}-${partIndex}-${imgIndex}`,
-            imageUrl: img.imageUrl ?? '',
-          }))
-        }
-        return []
-      })
-      .flat()
-      .filter(
-        (img): img is { id: string; imageUrl: string } =>
-          img !== null &&
-          img !== undefined &&
-          'imageUrl' in img &&
-          typeof img.imageUrl === 'string' &&
-          img.imageUrl.trim() !== '' &&
-          'id' in img &&
-          typeof img.id === 'string',
-      ),
-  )
-}
+const EMPTY_ARRAY: { id: string; imageUrl: string }[] = []
 
+const conversationImagesCache = computed(() => {
+  const cache = new Map<string, { id: string; imageUrl: string }[]>()
+
+  for (const [key, conversation] of Object.entries(conversations.conversationList)) {
+    if (!conversation || conversation.length === 0) {
+      cache.set(key, EMPTY_ARRAY)
+      continue
+    }
+
+    const images = conversation.flatMap((msg, msgIndex) =>
+      msg.parts
+        .filter(
+          (part) =>
+            (part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit') &&
+            part.state === 'output-available',
+        )
+        .map((part, partIndex) => {
+          if (
+            (part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit') &&
+            'output' in part &&
+            part.output &&
+            typeof part.output === 'object' &&
+            'images' in part.output
+          ) {
+            const partImages = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? []
+            return partImages.map((img, imgIndex) => ({
+              id: `${msgIndex}-${partIndex}-${imgIndex}`,
+              imageUrl: img.imageUrl ?? '',
+            }))
+          }
+          return []
+        })
+        .flat()
+        .filter(
+          (img): img is { id: string; imageUrl: string } =>
+            img !== null &&
+            img !== undefined &&
+            'imageUrl' in img &&
+            typeof img.imageUrl === 'string' &&
+            img.imageUrl.trim() !== '' &&
+            'id' in img &&
+            typeof img.id === 'string',
+        ),
+    )
+
+    cache.set(key, images.length > 0 ? images : EMPTY_ARRAY)
+  }
+  return cache
+})
+
+const images = (conversationKey: string) => {
+  return conversationImagesCache.value.get(conversationKey) ?? EMPTY_ARRAY
+}
 const reversedConversationKeys = computed(() => {
   const list = conversations.conversationList ?? {}
   const keys = Object.keys(list).reverse()
