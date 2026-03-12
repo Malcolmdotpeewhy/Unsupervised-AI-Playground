@@ -97,7 +97,7 @@
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <ThumbnailPreviewStrip :items="images(conversations.conversationList[key])" />
+      <ThumbnailPreviewStrip :items="conversationImagesMap.get(key) || EMPTY_ARRAY" />
     </div>
   </div>
 </template>
@@ -134,50 +134,61 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useConversations } from '@/assets/js/store/conversations'
-import { AipgUiMessage } from '@/assets/js/store/openAiCompatibleChat'
 
 const conversations = useConversations()
 const emits = defineEmits<{
   (e: 'conversationSelected'): void
 }>()
 
-const images = (conversation: AipgUiMessage[]) => {
-  return conversation.flatMap((msg, msgIndex) =>
-    msg.parts
-      .filter(
-        (part) =>
-          (part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit') &&
-          part.state === 'output-available',
-      )
-      .map((part, partIndex) => {
-        if (
-          (part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit') &&
-          'output' in part &&
-          part.output &&
-          typeof part.output === 'object' &&
-          'images' in part.output
-        ) {
-          const images = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? []
-          return images.map((img, imgIndex) => ({
-            id: `${msgIndex}-${partIndex}-${imgIndex}`,
-            imageUrl: img.imageUrl ?? '',
-          }))
-        }
-        return []
-      })
-      .flat()
-      .filter(
-        (img): img is { id: string; imageUrl: string } =>
-          img !== null &&
-          img !== undefined &&
-          'imageUrl' in img &&
-          typeof img.imageUrl === 'string' &&
-          img.imageUrl.trim() !== '' &&
-          'id' in img &&
-          typeof img.id === 'string',
-      ),
-  )
-}
+const EMPTY_ARRAY: { id: string; imageUrl: string }[] = []
+
+// ⚡ Bolt Performance Optimization: Memoize images extracted from conversation lists
+// Why: Calling `images(...)` inside `v-for` parses every message in a conversation on every
+//      render cycle, allocating new arrays. This causes O(N) thrashing for long histories.
+const conversationImagesMap = computed(() => {
+  const map = new Map<string, { id: string; imageUrl: string }[]>()
+  for (const [key, conversation] of Object.entries(conversations.conversationList || {})) {
+    const imgs = conversation.flatMap((msg, msgIndex) =>
+      msg.parts
+        .filter(
+          (part) =>
+            (part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit') &&
+            part.state === 'output-available',
+        )
+        .map((part, partIndex) => {
+          if (
+            (part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit') &&
+            'output' in part &&
+            part.output &&
+            typeof part.output === 'object' &&
+            'images' in part.output
+          ) {
+            const images = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? []
+            return images.map((img, imgIndex) => ({
+              id: `${msgIndex}-${partIndex}-${imgIndex}`,
+              imageUrl: img.imageUrl ?? '',
+            }))
+          }
+          return []
+        })
+        .flat()
+        .filter(
+          (img): img is { id: string; imageUrl: string } =>
+            img !== null &&
+            img !== undefined &&
+            'imageUrl' in img &&
+            typeof img.imageUrl === 'string' &&
+            img.imageUrl.trim() !== '' &&
+            'id' in img &&
+            typeof img.id === 'string',
+        ),
+    )
+    if (imgs.length > 0) {
+      map.set(key, imgs)
+    }
+  }
+  return map
+})
 
 const reversedConversationKeys = computed(() => {
   const list = conversations.conversationList ?? {}
