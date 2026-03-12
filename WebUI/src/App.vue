@@ -25,6 +25,7 @@
       <button
         v-if="debugToolsEnabled"
         :title="languages.COM_SETTINGS"
+        :aria-label="languages.COM_SETTINGS || 'Settings'"
         @click="
           () => {
             const curState = globalSetup.loadingState
@@ -42,18 +43,21 @@
       <button
         v-if="!demoMode.enabled"
         :title="languages.COM_MINI"
+        :aria-label="languages.COM_MINI || 'Minimize'"
         @click="miniWindow"
         class="svg-icon i-mini w-6 h-6"
       ></button>
       <button
         v-if="!demoMode.enabled"
         :title="fullscreen ? languages.COM_FULLSCREEN_EXIT : languages.COM_FULLSCREEN"
+        :aria-label="fullscreen ? (languages.COM_FULLSCREEN_EXIT || 'Exit fullscreen') : (languages.COM_FULLSCREEN || 'Fullscreen')"
         @click="toggleFullScreen"
         class="svg-icon w-6 h-6"
         :class="fullscreen ? 'i-fullscreen-exit' : 'i-fullscreen'"
       ></button>
       <button
         :title="languages.COM_CLOSE"
+        :aria-label="languages.COM_CLOSE || 'Close'"
         @click="closeWindow"
         class="svg-icon i-close w-6 h-6"
       ></button>
@@ -163,11 +167,13 @@
           @click="openAppSettings"
           class="svg-icon i-setup w-6 h-6 text-foreground hover:text-foreground/80 transition-colors"
           title="App Settings"
+          aria-label="App Settings"
         ></button>
         <button
           @click="openDevTools"
           class="svg-icon i-code w-6 h-6 text-foreground hover:text-foreground/80 transition-colors"
           title="Developer Tools"
+          aria-label="Developer Tools"
         ></button>
       </div>
       <Chat v-if="promptStore.getCurrentMode() === 'chat'" ref="chatRef" />

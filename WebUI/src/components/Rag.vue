@@ -13,7 +13,6 @@
         class="svg-icon i-close w-7 h-7 hover:text-primary transition-colors duration-200"
         :aria-label="languages.COM_CLOSE"
         @click="closeRagPanel"
-        :aria-label="languages.COM_CLOSE"
       ></button>
     </div>
 
