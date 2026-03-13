@@ -298,6 +298,7 @@
 
 <script setup lang="ts">
 import * as toast from '@/assets/js/toast.ts'
+
 import { useI18N } from '@/assets/js/store/i18n.ts'
 import { useTextInference } from '@/assets/js/store/textInference.ts'
 import { parse } from '@/assets/js/markdownParser.ts'
@@ -316,6 +317,10 @@ import { ToolUIPart } from 'ai'
 import { AipgTools } from '@/assets/js/tools/tools'
 import { base64ToString } from 'uint8array-extras'
 import { UserCircleIcon } from '@heroicons/vue/24/outline'
+
+// ⚡ Bolt Performance Optimization: Return a static empty array instead of inline `[]`
+// Why: Prevents Vue from detecting a new array reference and unnecessarily re-rendering child components.
+const EMPTY_MEDIA_ARRAY: MediaItem[] = []
 
 const openAiCompatibleChat = useOpenAiCompatibleChat()
 const textInference = useTextInference()
@@ -498,7 +503,7 @@ function copyText(text: string) {
 
 // Helper functions for tool rendering
 function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
-  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return []
+  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return EMPTY_MEDIA_ARRAY
   const toolCallId = part.toolCallId
   const progress = toolProgressMap[toolCallId]
 
@@ -509,11 +514,11 @@ function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
 
   // Otherwise, use output images if available
   if (part.state === 'output-available') {
-    if (!part.output) return []
+    if (!part.output) return EMPTY_MEDIA_ARRAY
     return part.output.images.map((img) => ({ ...img, state: 'done' as const }))
   }
 
-  return []
+  return EMPTY_MEDIA_ARRAY
 }
 
 function getToolProcessing(part: ToolUIPart<AipgTools>): boolean {
