@@ -97,7 +97,7 @@
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <ThumbnailPreviewStrip :items="images(conversations.conversationList[key])" />
+      <ThumbnailPreviewStrip :items="conversationImages[key] || EMPTY_ARRAY" />
     </div>
   </div>
 </template>
@@ -134,17 +134,28 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useConversations } from '@/assets/js/store/conversations'
-import { AipgUiMessage } from '@/assets/js/store/openAiCompatibleChat'
 
 const conversations = useConversations()
 const emits = defineEmits<{
   (e: 'conversationSelected'): void
 }>()
 
-const images = (conversation: AipgUiMessage[]) => {
-  return conversation.flatMap((msg, msgIndex) =>
-    msg.parts
-      .filter(
+// ⚡ Bolt Performance Optimization: Static fallback to prevent Vue render thrashing
+const EMPTY_ARRAY: { id: string; imageUrl: string }[] = []
+
+// ⚡ Bolt Performance Optimization: Memoize image arrays by conversation key
+// Why: Calling a method like images() in a v-for template returns a new array reference
+// on every render, causing O(N) child component re-renders (render thrashing).
+// A computed map preserves references across unchanged conversations.
+const conversationImages = computed(() => {
+  const result: Record<string, { id: string; imageUrl: string }[]> = {}
+
+  Object.entries(conversations.conversationList || {}).forEach(([key, conversation]) => {
+    if (!conversation) return
+
+    result[key] = conversation.flatMap((msg, msgIndex) =>
+      msg.parts
+        .filter(
         (part) =>
           (part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit') &&
           part.state === 'output-available',
@@ -175,9 +186,12 @@ const images = (conversation: AipgUiMessage[]) => {
           img.imageUrl.trim() !== '' &&
           'id' in img &&
           typeof img.id === 'string',
-      ),
-  )
-}
+        ),
+    )
+  })
+
+  return result
+})
 
 const reversedConversationKeys = computed(() => {
   const list = conversations.conversationList ?? {}
