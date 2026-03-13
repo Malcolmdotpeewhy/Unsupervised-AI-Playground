@@ -13,3 +13,7 @@ In Vue.js, inline function calls like `sanitizeMarkdown(parse(text))` inside `v-
 ## 2024-05-18 - Memory Inefficiency in Caching with Concatenated Keys
 **Learning:** Using a concatenated key like `messageId + '-text' + textContent` for a cache Map is highly memory-inefficient and completely defeats the purpose of deduplication. The concatenated key stores the entire potentially large string content again in the Map's key layer, consuming double the memory. Moreover, it prevents identical text blocks from different messages (e.g., standard responses or repeated outputs) from sharing the cached parsed HTML.
 **Action:** Always use the raw content (e.g., `text`) itself as the cache key when caching deterministic parsing or formatting operations like markdown-to-HTML conversion. The output solely depends on the input content, making it the perfect unique identifier.
+
+## 2024-03-14 - Preventing Vue template render thrashing from empty array returns
+**Learning:** Returning inline literals like `[]` inside a Vue template helper function (e.g. `getToolImages(part)`) creates a new array reference on every render cycle. Vue detects this as a state change, causing expensive child components to constantly re-render unnecessarily, degrading performance significantly, especially during frequent updates like LLM text streaming.
+**Action:** Always return a static constant (e.g., `const EMPTY_ARRAY = []`) instead of inline literals when an empty array or object is used as a fallback or default value in a function called directly from a Vue template.
