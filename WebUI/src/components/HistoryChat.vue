@@ -104,6 +104,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+
 import ThumbnailPreviewStrip from './ThumbnailPreviewStrip.vue'
 import {
   DropdownMenu,
@@ -136,6 +137,10 @@ import { Button } from '@/components/ui/button'
 import { useConversations } from '@/assets/js/store/conversations'
 import { AipgUiMessage } from '@/assets/js/store/openAiCompatibleChat'
 
+// ⚡ Bolt Performance Optimization: Return a static empty array instead of inline `[]`
+// Why: Prevents Vue from detecting a new array reference and unnecessarily re-rendering child components.
+const EMPTY_IMAGES_ARRAY: { id: string; imageUrl: string }[] = []
+
 const conversations = useConversations()
 const emits = defineEmits<{
   (e: 'conversationSelected'): void
@@ -163,7 +168,7 @@ const images = (conversation: AipgUiMessage[]) => {
             imageUrl: img.imageUrl ?? '',
           }))
         }
-        return []
+        return EMPTY_IMAGES_ARRAY
       })
       .flat()
       .filter(
