@@ -70,6 +70,9 @@ import { usePresetSwitching } from '@/assets/js/store/presetSwitching'
 import VariantSelector, { type VariantOption } from '@/components/VariantSelector.vue'
 import { Card } from '@/components/ui/card'
 import * as toast from '@/assets/js/toast'
+
+const EMPTY_ARRAY: never[] = []
+
 interface Props {
   categories?: string[]
   type?: string
@@ -110,7 +113,7 @@ const activeVariantName = computed(() => {
 })
 
 const variantSelectorOptions = computed<VariantOption[]>(() => {
-  if (!selectedPreset.value?.variants) return []
+  if (!selectedPreset.value?.variants) return EMPTY_ARRAY
 
   const options: VariantOption[] = []
 

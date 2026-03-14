@@ -136,6 +136,8 @@ import { Button } from '@/components/ui/button'
 import { useConversations } from '@/assets/js/store/conversations'
 import { AipgUiMessage } from '@/assets/js/store/openAiCompatibleChat'
 
+const EMPTY_ARRAY: never[] = []
+
 const conversations = useConversations()
 const emits = defineEmits<{
   (e: 'conversationSelected'): void
@@ -157,13 +159,13 @@ const images = (conversation: AipgUiMessage[]) => {
           typeof part.output === 'object' &&
           'images' in part.output
         ) {
-          const images = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? []
+          const images = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? EMPTY_ARRAY
           return images.map((img, imgIndex) => ({
             id: `${msgIndex}-${partIndex}-${imgIndex}`,
             imageUrl: img.imageUrl ?? '',
           }))
         }
-        return []
+        return EMPTY_ARRAY
       })
       .flat()
       .filter(
