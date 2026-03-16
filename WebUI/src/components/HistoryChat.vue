@@ -141,8 +141,11 @@ const emits = defineEmits<{
   (e: 'conversationSelected'): void
 }>()
 
+// ⚡ Bolt Performance Optimization: Return static EMPTY_ARRAY to prevent Vue reactivity system from detecting a new reference when no images exist, which avoids O(N) re-renders in ThumbnailPreviewStrip.
+const EMPTY_ARRAY: never[] = []
+
 const images = (conversation: AipgUiMessage[]) => {
-  return conversation.flatMap((msg, msgIndex) =>
+  const result = conversation.flatMap((msg, msgIndex) =>
     msg.parts
       .filter(
         (part) =>
@@ -177,6 +180,8 @@ const images = (conversation: AipgUiMessage[]) => {
           typeof img.id === 'string',
       ),
   )
+
+  return result.length === 0 ? EMPTY_ARRAY : result
 }
 
 const reversedConversationKeys = computed(() => {
