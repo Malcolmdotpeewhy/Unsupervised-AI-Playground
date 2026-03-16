@@ -10,7 +10,7 @@
       <div
         class="relative w-[150px] h-[90px] overflow-hidden rounded-sm flex items-center justify-center bg-background"
       >
-        <span class="text-lg text-primary font-semibold">New Image</span>
+        <span class="text-lg text-primary font-semibold">{{ languages.COM_NEW_IMAGE || 'New Image' }}</span>
       </div>
     </div>
 
@@ -132,7 +132,7 @@
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <DropdownMenuItem @select="(e: Event) => e.preventDefault()">
-                            Remove
+                              {{ languages.COM_REMOVE || 'Remove' }}
                           </DropdownMenuItem>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
@@ -145,9 +145,9 @@
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel>{{ languages.COM_CANCEL || 'Cancel' }}</AlertDialogCancel>
                             <AlertDialogAction @click="() => deleteImage(image)">
-                              {{ languages.COM_REMOVE }}
+                              {{ languages.COM_REMOVE || 'Remove' }}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -161,7 +161,7 @@
         </details>
       </template>
     </template>
-    <div v-else class="text-muted-foreground text-center p-5 italic">No images generated yet.</div>
+    <div v-else class="text-muted-foreground text-center p-5 italic">{{ languages.COM_NO_IMAGES_GENERATED || 'No images generated yet.' }}</div>
   </div>
 </template>
 

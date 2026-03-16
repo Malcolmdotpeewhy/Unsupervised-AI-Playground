@@ -50,46 +50,46 @@
                     }
                   "
                 >
-                  Rename
+                  {{ languages.COM_RENAME || 'Rename' }}
                 </DropdownMenuItem>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Rename conversation</DialogTitle>
-                  <DialogDescription>Set a new title for this conversation.</DialogDescription>
+                  <DialogTitle>{{ languages.COM_RENAME_CONVERSATION || 'Rename conversation' }}</DialogTitle>
+                  <DialogDescription>{{ languages.COM_RENAME_CONVERSATION_DESC || 'Set a new title for this conversation.' }}</DialogDescription>
                 </DialogHeader>
                 <div class="mt-2">
                   <Input
                     autofocus
                     type="text"
-                    placeholder="Enter title"
+                    :placeholder="languages.COM_ENTER_TITLE || 'Enter title'"
                     v-model="renameTitle"
                     @keydown.enter.prevent="saveRename"
                   />
                 </div>
                 <DialogFooter>
-                  <Button variant="ghost" @click="cancelRename">Cancel</Button>
-                  <Button :disabled="!renameTitle.trim()" @click="saveRename">Save</Button>
+                  <Button variant="ghost" @click="cancelRename">{{ languages.COM_CANCEL || 'Cancel' }}</Button>
+                  <Button :disabled="!renameTitle.trim()" @click="saveRename">{{ languages.COM_SAVE || 'Save' }}</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem @select="(e: Event) => e.preventDefault()">
-                  Delete
+                  {{ languages.COM_DELETE || 'Delete' }}
                 </DropdownMenuItem>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete conversation?</AlertDialogTitle>
+                  <AlertDialogTitle>{{ languages.COM_DELETE_CONVERSATION_QUESTION || 'Delete conversation?' }}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently remove this conversation and its messages.
+                    {{ languages.COM_DELETE_CONVERSATION_EXPLANATION || 'This will permanently remove this conversation and its messages.' }}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{{ languages.COM_CANCEL || 'Cancel' }}</AlertDialogCancel>
                   <AlertDialogAction @click="() => conversations.deleteConversation(key)">
-                    Delete
+                    {{ languages.COM_DELETE || 'Delete' }}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -135,8 +135,10 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useConversations } from '@/assets/js/store/conversations'
 import { AipgUiMessage } from '@/assets/js/store/openAiCompatibleChat'
+import { useI18N } from '@/assets/js/store/i18n'
 
 const conversations = useConversations()
+const { state: languages } = useI18N()
 const emits = defineEmits<{
   (e: 'conversationSelected'): void
 }>()
@@ -189,7 +191,7 @@ const reversedConversationKeys = computed(() => {
 const conversationTitle = (key: string) => {
   const conversation = conversations.conversationList[key]
   if (!conversation || conversation.length === 0) {
-    return 'New Conversation'
+    return languages.ANSWER_NEW_CONVERSATION || 'New Conversation'
   }
   if (conversation[0].metadata?.conversationTitle) {
     return conversation[0].metadata.conversationTitle
@@ -202,7 +204,7 @@ const conversationTitle = (key: string) => {
   }
 
   const titlePart = firstMessage.parts?.find((part) => part.type === 'text')
-  return titlePart ? titlePart.text.substring(0, 50) : 'New Conversation'
+  return titlePart ? titlePart.text.substring(0, 50) : (languages.ANSWER_NEW_CONVERSATION || 'New Conversation')
 }
 
 const menuOpenKey = ref<string | null>(null)
