@@ -33,7 +33,7 @@
             </div>
             <ThumbnailPreviewStrip
               class="group-open/details:hidden self-center"
-              :items="imageGroup.images.filter((item) => item.type === 'image').reverse()"
+              :items="imageGroup.previewImages"
             />
           </summary>
 
@@ -249,6 +249,9 @@ const imagesByDay = computed(() => {
     dateKey,
     label: value.label,
     images: value.images,
+    // ⚡ Bolt Performance Optimization: Memoize preview images
+    // Why: Prevents creating a new array reference on every render in the template, which causes O(N) render thrashing
+    previewImages: value.images.filter((item) => item.type === 'image').reverse(),
   }))
 })
 
