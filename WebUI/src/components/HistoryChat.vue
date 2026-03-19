@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col space-y-2 pr-3 h-full overflow-y-auto">
-    <div
+    <HistoryChatItem
       v-for="key in reversedConversationKeys"
       :key="key"
       class="flex flex-col items-center justify-between rounded-lg px-3 py-1 transition cursor-pointer border-2"
@@ -103,36 +103,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import ThumbnailPreviewStrip from './ThumbnailPreviewStrip.vue'
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from '@/components/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { computed } from 'vue'
+import HistoryChatItem from './HistoryChatItem.vue'
 import { useConversations } from '@/assets/js/store/conversations'
 
 const conversations = useConversations()
@@ -192,63 +164,6 @@ const reversedConversationKeys = computed(() => {
   console.log('Reversed conversation keys:', list, keys)
   return keys
 })
-
-const conversationTitle = (key: string) => {
-  const conversation = conversations.conversationList[key]
-  if (!conversation || conversation.length === 0) {
-    return 'New Conversation'
-  }
-  if (conversation[0].metadata?.conversationTitle) {
-    return conversation[0].metadata.conversationTitle
-  }
-  const firstMessage = conversation[0]
-
-  // todo: can be deleted eventually
-  if (firstMessage.parts === undefined) {
-    conversations.deleteConversation(key)
-  }
-
-  const titlePart = firstMessage.parts?.find((part) => part.type === 'text')
-  return titlePart ? titlePart.text.substring(0, 50) : 'New Conversation'
-}
-
-const menuOpenKey = ref<string | null>(null)
-
-function onMenuOpenChange(conversationKey: string, open: boolean) {
-  menuOpenKey.value = open
-    ? conversationKey
-    : menuOpenKey.value === conversationKey
-      ? null
-      : menuOpenKey.value
-}
-
-// Rename dialog state
-const renameDialogOpen = ref(false)
-const renameKey = ref<string | null>(null)
-const renameTitle = ref('')
-
-function openRenameDialog(conversationKey: string) {
-  renameKey.value = conversationKey
-  const existingTitle = conversationTitle(conversationKey)
-  renameTitle.value = existingTitle ?? ''
-  renameDialogOpen.value = true
-}
-
-function cancelRename() {
-  renameDialogOpen.value = false
-  renameKey.value = null
-  menuOpenKey.value = null
-}
-
-function saveRename() {
-  if (!renameKey.value) return
-  const newTitle = renameTitle.value.trim()
-  if (newTitle.length === 0) return
-  conversations.renameConversationTitle(renameKey.value, newTitle)
-  renameDialogOpen.value = false
-  menuOpenKey.value = null
-  renameKey.value = null
-}
 
 const selectConversation = (key: string) => {
   conversations.activeKey = key
