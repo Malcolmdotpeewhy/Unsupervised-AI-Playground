@@ -1,9 +1,10 @@
 <template>
   <button
     v-if="showScrollButton"
-    class="absolute bottom-65 left-1/2 transform -translate-x-1/2 bg-background text-foreground p-2 rounded-full shadow-lg z-50 hover:bg-muted transition-colors"
+    class="absolute bottom-65 left-1/2 transform -translate-x-1/2 bg-background text-foreground p-2 rounded-full shadow-lg z-50 hover:bg-muted transition-colors focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
     @click="scrollToBottom()"
     title="Scroll to bottom"
+    aria-label="Scroll to bottom"
   >
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -101,7 +102,11 @@
                   :class="textInference.nameSizeClass"
                 >
                   Source Docs
-                  <button class="ml-1">
+                  <button
+                    class="ml-1 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded"
+                    :aria-label="showRagSourcePerMessageId[message.id] ? 'Hide source docs' : 'Show source docs'"
+                    :title="showRagSourcePerMessageId[message.id] ? 'Hide source docs' : 'Show source docs'"
+                  >
                     <img
                       v-if="showRagSourcePerMessageId[message.id]"
                       src="../assets/svg/arrow-up.svg"
@@ -145,7 +150,9 @@
                       showThinkingTextPerMessageId[message.id] =
                         !showThinkingTextPerMessageId[message.id]
                     "
-                    class="ml-1"
+                    class="ml-1 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded"
+                    :aria-label="showThinkingTextPerMessageId[message.id] ? 'Hide reasoning' : 'Show reasoning'"
+                    :title="showThinkingTextPerMessageId[message.id] ? 'Hide reasoning' : 'Show reasoning'"
                   >
                     <img
                       v-if="showThinkingTextPerMessageId[message.id]"
