@@ -218,6 +218,10 @@ import * as toast from '@/assets/js/toast'
 import { Context } from '@/components/ui/context'
 import Button from '@/components/ui/button/Button.vue'
 
+// ⚡ Bolt Performance Optimization: Use a static empty array reference for computed property fallbacks.
+// Why: Returning a new array literal `[]` from a computed property or template function creates a new reference on every evaluation, causing unnecessary reactivity triggers and child component re-renders. A stable reference prevents this.
+const EMPTY_IMAGE_PREVIEW_ARRAY: { id: number; url: string; file: File }[] = []
+
 const instance = getCurrentInstance()
 const audioRecorder = useAudioRecorder()
 const speechToText = useSpeechToText()
@@ -311,7 +315,7 @@ const imagePreview = computed(() => {
     }
     return urls
   }
-  return []
+  return EMPTY_IMAGE_PREVIEW_ARRAY
 })
 
 // Remove image at specified index
