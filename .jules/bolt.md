@@ -13,3 +13,7 @@ In Vue.js, inline function calls like `sanitizeMarkdown(parse(text))` inside `v-
 ## 2024-05-18 - Memory Inefficiency in Caching with Concatenated Keys
 **Learning:** Using a concatenated key like `messageId + '-text' + textContent` for a cache Map is highly memory-inefficient and completely defeats the purpose of deduplication. The concatenated key stores the entire potentially large string content again in the Map's key layer, consuming double the memory. Moreover, it prevents identical text blocks from different messages (e.g., standard responses or repeated outputs) from sharing the cached parsed HTML.
 **Action:** Always use the raw content (e.g., `text`) itself as the cache key when caching deterministic parsing or formatting operations like markdown-to-HTML conversion. The output solely depends on the input content, making it the perfect unique identifier.
+
+## 2025-02-14 - [Vue Inline Filters Break Prop Memoization]
+**Learning:** In Vue templates, passing an inline array operation like `:items="array.filter().reverse()"` directly to a child component generates a new array reference on every single render of the parent. This breaks Vue's internal prop memoization, forcing the child component to unnecessarily re-render even if the underlying data hasn't changed.
+**Action:** Always extract inline array derivations meant for child props into a standard `computed` property within the setup block.
