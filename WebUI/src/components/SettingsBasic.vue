@@ -142,20 +142,35 @@
         }}
       </p>
       <div class="flex pr-4 gap-2 items-center">
-        <div :data-tooltip="i18nState.PRESET_RELOAD_INFO">
-          <button
-            class="svg-icon i-refresh w-5 h-5"
-            :aria-label="i18nState.PRESET_RELOAD_INFO"
-            @click="presetsStore.loadPresetsFromFiles"
-          ></button>
-        </div>
-        <div :data-tooltip="i18nState.PRESET_DOWNLOAD_INFO">
-          <button
-            class="svg-icon i-download-cloud w-5 h-5"
-            :aria-label="i18nState.PRESET_DOWNLOAD_INFO"
-            @click="loadPresetsFromIntel"
-          ></button>
-        </div>
+        <TooltipProvider :delay-duration="200">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <button
+                class="svg-icon i-refresh w-5 h-5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                :aria-label="i18nState.PRESET_RELOAD_INFO"
+                @click="presetsStore.loadPresetsFromFiles"
+              ></button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" class="max-w-[300px]">
+              {{ i18nState.PRESET_RELOAD_INFO }}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider :delay-duration="200">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <button
+                class="svg-icon i-download-cloud w-5 h-5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                :aria-label="i18nState.PRESET_DOWNLOAD_INFO"
+                @click="loadPresetsFromIntel"
+              ></button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" class="max-w-[300px]">
+              {{ i18nState.PRESET_DOWNLOAD_INFO }}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </div>
     <div class="flex flex-col pt-5 gap-2">
@@ -392,18 +407,3 @@ async function handleSpeechToTextToggle(enabled: boolean | 'indeterminate') {
   }
 }
 </script>
-
-<style>
-[data-tooltip]:hover::after {
-  display: block;
-  position: absolute;
-  right: 10px;
-  content: attr(data-tooltip);
-  border: 1px solid hsl(var(--border));
-  background: hsl(var(--muted));
-  color: hsl(var(--foreground));
-  border-radius: 0.5rem;
-  padding: 0.7em;
-  z-index: 10;
-}
-</style>
