@@ -54,7 +54,12 @@
             />
             <div
               :class="textInference.fontSizeClass"
-              v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
+              v-html="
+                getRenderedMarkdown(
+                  message.parts.find((part) => part.type === 'text')?.text ?? '',
+                  false,
+                )
+              "
             ></div>
             <button
               class="flex items-center gap-1 text-xs text-muted-foreground mt-1"
@@ -158,16 +163,26 @@
                 <div
                   v-if="showThinkingTextPerMessageId[message.id]"
                   class="border-l-2 border-border pl-4 text-muted-foreground"
-                  v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'reasoning')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                  v-html="
+                    getRenderedMarkdown(
+                      message.parts.find((part) => part.type === 'reasoning')?.text ?? '',
+                      i + 1 == activeConversation.length && openAiCompatibleChat.processing,
+                    )
+                  "
                 ></div>
               </template>
               <div
-                v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                v-html="
+                  getRenderedMarkdown(
+                    message.parts.find((part) => part.type === 'text')?.text ?? '',
+                    i + 1 == activeConversation.length && openAiCompatibleChat.processing,
+                  )
+                "
               ></div>
 
               <!-- Render tool parts -->
               <template
-                v-for="part in message.parts.filter((p) => p.type.startsWith('tool-'))"
+                v-for="part in messageToolParts.get(message.id) || []"
                 :key="
                   part.type === 'tool-comfyUI'
                     ? `tool-${part.toolCallId}`
@@ -179,67 +194,69 @@
                 "
               >
                 <span>I'm using the tool {{ part.type.replace('tool-', '') }}</span>
-                <template v-if="part.type === 'tool-comfyUI'">
-                  <div class="mt-1 pt-1">
-                    <span
-                      >Generating using the preset
-                      <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
-                    >
-                    <br />
-                    <br />
-                    <span
-                      ><em>{{ part.input?.prompt ?? '' }}</em></span
-                    >
-                    <ChatWorkflowResult
-                      :images="getToolImages(part)"
-                      :processing="getToolProcessing(part)"
-                      :currentState="getToolCurrentState(part)"
-                      :stepText="getToolStepText(part)"
-                      :toolCallId="(part as any).toolCallId"
-                    />
-                  </div>
-                </template>
-                <template v-else-if="part.type === 'tool-comfyUiImageEdit'">
-                  <div class="mt-1 pt-1">
-                    <span
-                      >Editing using the preset <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
-                    >
-                    <br />
-                    <br />
-                    <span
-                      ><em>{{ part.input?.prompt ?? '' }}</em></span
-                    >
-                    <ChatWorkflowResult
-                      :images="getToolImages(part)"
-                      :processing="getToolProcessing(part)"
-                      :currentState="getToolCurrentState(part)"
-                      :stepText="getToolStepText(part)"
-                      :toolCallId="(part as any).toolCallId"
-                    />
-                  </div>
-                </template>
-                <template v-else-if="part.type === 'tool-visualizeObjectDetections'">
-                  <div class="mt-1 pt-1">
-                    <div
-                      v-if="
-                        part.state === 'output-available' && (part as any).output?.annotatedImageUrl
-                      "
-                    >
-                      <img
-                        :src="(part as any).output.annotatedImageUrl"
-                        alt="Annotated image with object detections"
-                        class="max-w-full rounded-md border-2 border-border"
+                  <template v-if="part.type === 'tool-comfyUI'">
+                    <div class="mt-1 pt-1">
+                      <span
+                        >Generating using the preset
+                        <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
+                      >
+                      <br />
+                      <br />
+                      <span
+                        ><em>{{ part.input?.prompt ?? '' }}</em></span
+                      >
+                      <ChatWorkflowResult
+                        :images="getToolImages(part)"
+                        :processing="getToolProcessing(part)"
+                        :currentState="getToolCurrentState(part)"
+                        :stepText="getToolStepText(part)"
+                        :toolCallId="(part as any).toolCallId"
                       />
                     </div>
-                    <div
-                      v-else-if="
-                        part.state === 'input-streaming' || part.state === 'input-available'
-                      "
-                    >
-                      <span class="text-muted-foreground">Visualizing object detections...</span>
+                  </template>
+                  <template v-else-if="part.type === 'tool-comfyUiImageEdit'">
+                    <div class="mt-1 pt-1">
+                      <span
+                        >Editing using the preset
+                        <b>{{ part.input?.workflow ?? 'unknown' }}</b></span
+                      >
+                      <br />
+                      <br />
+                      <span
+                        ><em>{{ part.input?.prompt ?? '' }}</em></span
+                      >
+                      <ChatWorkflowResult
+                        :images="getToolImages(part)"
+                        :processing="getToolProcessing(part)"
+                        :currentState="getToolCurrentState(part)"
+                        :stepText="getToolStepText(part)"
+                        :toolCallId="(part as any).toolCallId"
+                      />
                     </div>
-                  </div>
-                </template>
+                  </template>
+                  <template v-else-if="part.type === 'tool-visualizeObjectDetections'">
+                    <div class="mt-1 pt-1">
+                      <div
+                        v-if="
+                          part.state === 'output-available' &&
+                          (part as any).output?.annotatedImageUrl
+                        "
+                      >
+                        <img
+                          :src="(part as any).output.annotatedImageUrl"
+                          alt="Annotated image with object detections"
+                          class="max-w-full rounded-md border-2 border-border"
+                        />
+                      </div>
+                      <div
+                        v-else-if="
+                          part.state === 'input-streaming' || part.state === 'input-available'
+                        "
+                      >
+                        <span class="text-muted-foreground">Visualizing object detections...</span>
+                      </div>
+                    </div>
+                  </template>
               </template>
             </div>
             <div class="answer-tools flex gap-3 items-center text-muted-foreground">
@@ -329,12 +346,25 @@ const autoScrollEnabled = ref(true)
 const showScrollButton = ref(false)
 const chatPanel = ref<HTMLElement | null>(null)
 
-
 const activeConversation = computed(() => openAiCompatibleChat.messages)
 const showThinkingTextPerMessageId = reactive<Record<string, boolean>>({})
 const showRagSourcePerMessageId = reactive<Record<string, boolean>>({})
 
 const ragSourcePerMessageId = reactive<Record<string, string>>({})
+
+// OPTIMIZATION: Memoize message parts filtering to prevent render thrashing during v-for iterations
+// By wrapping .filter() in a computed property based on the active conversation, we avoid creating
+// a new array reference on every render cycle.
+const messageToolParts = computed(() => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const partsMap = new Map<string, any[]>()
+  if (activeConversation.value) {
+    activeConversation.value.forEach((message) => {
+      partsMap.set(message.id, message.parts.filter((p) => p.type.startsWith('tool-')))
+    })
+  }
+  return partsMap
+})
 
 // Markdown rendering cache to prevent render thrashing in v-for loops
 // We only want to cache fully generated messages. If the message is actively
