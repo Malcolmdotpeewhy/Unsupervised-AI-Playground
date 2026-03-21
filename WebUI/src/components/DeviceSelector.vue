@@ -22,8 +22,12 @@ const selectInferenceDevice = async (item: string) => {
   await backendServices.startService(props.backend)
 }
 const backendServices = useBackendServices()
+
+// ⚡ Bolt Performance Optimization: Use a static constant for an empty array to prevent unnecessary re-renders.
+// Why: Returning an inline `[]` inside a computed property creates a new array reference on every evaluation, causing dependent Vue child components (like `DropDownNew`) to re-render.
+const EMPTY_DEVICES: InferenceDevice[] = []
 const devices = computed(
-  () => backendServices?.info?.find((bs) => bs.serviceName === props.backend)?.devices ?? [],
+  () => backendServices?.info?.find((bs) => bs.serviceName === props.backend)?.devices ?? EMPTY_DEVICES,
 )
 const selectedDevice = computed(() => devices.value.find((d) => d.selected) ?? devices.value[0])
 const items = computed(() => devices.value.map(deviceToItem))
