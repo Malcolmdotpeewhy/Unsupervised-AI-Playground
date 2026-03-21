@@ -98,7 +98,7 @@
         </DropdownMenu>
       </div>
       <ThumbnailPreviewStrip :items="conversationImages[key] || []" />
-    </div>
+    </HistoryChatItem>
   </div>
 </template>
 
