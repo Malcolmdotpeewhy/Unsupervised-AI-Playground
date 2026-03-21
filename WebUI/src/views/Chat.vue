@@ -54,7 +54,12 @@
             />
             <div
               :class="textInference.fontSizeClass"
-              v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', false)"
+              v-html="
+                getRenderedMarkdown(
+                  message.parts.find((part) => part.type === 'text')?.text ?? '',
+                  false,
+                )
+              "
             ></div>
             <button
               class="flex items-center gap-1 text-xs text-muted-foreground mt-1"
@@ -158,11 +163,21 @@
                 <div
                   v-if="showThinkingTextPerMessageId[message.id]"
                   class="border-l-2 border-border pl-4 text-muted-foreground"
-                  v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'reasoning')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                  v-html="
+                    getRenderedMarkdown(
+                      message.parts.find((part) => part.type === 'reasoning')?.text ?? '',
+                      i + 1 == activeConversation.length && openAiCompatibleChat.processing,
+                    )
+                  "
                 ></div>
               </template>
               <div
-                v-html="getRenderedMarkdown(message.parts.find((part) => part.type === 'text')?.text ?? '', i + 1 == activeConversation.length && openAiCompatibleChat.processing)"
+                v-html="
+                  getRenderedMarkdown(
+                    message.parts.find((part) => part.type === 'text')?.text ?? '',
+                    i + 1 == activeConversation.length && openAiCompatibleChat.processing,
+                  )
+                "
               ></div>
 
               <!-- Render tool parts -->
@@ -328,7 +343,6 @@ const languages = i18nState
 const autoScrollEnabled = ref(true)
 const showScrollButton = ref(false)
 const chatPanel = ref<HTMLElement | null>(null)
-
 
 const activeConversation = computed(() => openAiCompatibleChat.messages)
 const showThinkingTextPerMessageId = reactive<Record<string, boolean>>({})
@@ -496,9 +510,14 @@ function copyText(text: string) {
     .catch((e) => console.error('Error while copying text to clipboard', e))
 }
 
+// ⚡ Bolt Performance Optimization: Use static constant for empty array fallbacks.
+// Why: Prevents returning a new array reference on every render, avoiding unnecessary child component re-renders.
+const EMPTY_MEDIA_ITEMS: MediaItem[] = []
+
 // Helper functions for tool rendering
 function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
-  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return []
+  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit'))
+    return EMPTY_MEDIA_ITEMS
   const toolCallId = part.toolCallId
   const progress = toolProgressMap[toolCallId]
 
@@ -509,11 +528,11 @@ function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
 
   // Otherwise, use output images if available
   if (part.state === 'output-available') {
-    if (!part.output) return []
+    if (!part.output) return EMPTY_MEDIA_ITEMS
     return part.output.images.map((img) => ({ ...img, state: 'done' as const }))
   }
 
-  return []
+  return EMPTY_MEDIA_ITEMS
 }
 
 function getToolProcessing(part: ToolUIPart<AipgTools>): boolean {
