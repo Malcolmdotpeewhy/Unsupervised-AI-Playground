@@ -496,9 +496,13 @@ function copyText(text: string) {
     .catch((e) => console.error('Error while copying text to clipboard', e))
 }
 
+// ⚡ Bolt Performance Optimization: Use static empty array to prevent render thrashing
+// Why: Returning inline [] from methods called in v-for templates creates new array references every render tick, forcing child components to re-render.
+const EMPTY_TOOL_IMAGES: MediaItem[] = []
+
 // Helper functions for tool rendering
 function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
-  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return []
+  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return EMPTY_TOOL_IMAGES
   const toolCallId = part.toolCallId
   const progress = toolProgressMap[toolCallId]
 
@@ -509,11 +513,11 @@ function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
 
   // Otherwise, use output images if available
   if (part.state === 'output-available') {
-    if (!part.output) return []
+    if (!part.output) return EMPTY_TOOL_IMAGES
     return part.output.images.map((img) => ({ ...img, state: 'done' as const }))
   }
 
-  return []
+  return EMPTY_TOOL_IMAGES
 }
 
 function getToolProcessing(part: ToolUIPart<AipgTools>): boolean {

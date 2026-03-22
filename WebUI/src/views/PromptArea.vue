@@ -300,6 +300,10 @@ const emits = defineEmits<{
   (e: 'openSettings'): void
 }>()
 
+// ⚡ Bolt Performance Optimization: Return static empty array
+// Why: Returning inline [] from methods called in computed templates creates new array references every render tick, forcing child components to re-render.
+const EMPTY_IMAGE_PREVIEW: { id: number; url: string; file: File }[] = []
+
 const imagePreview = computed(() => {
   if (openAiCompatibleChat.fileInput) {
     const urls = []
@@ -311,7 +315,7 @@ const imagePreview = computed(() => {
     }
     return urls
   }
-  return []
+  return EMPTY_IMAGE_PREVIEW
 })
 
 // Remove image at specified index
