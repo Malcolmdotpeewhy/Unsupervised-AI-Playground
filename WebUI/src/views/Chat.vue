@@ -497,8 +497,13 @@ function copyText(text: string) {
 }
 
 // Helper functions for tool rendering
+
+// ⚡ Bolt Performance Optimization: Return a static empty array instead of a new array reference `[]`
+// Why: `getToolImages` is called inside v-for loops for Chat workflow results. Returning a new `[]` reference causes child components to re-render on every tick.
+const EMPTY_MEDIA_ITEMS: MediaItem[] = []
+
 function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
-  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return []
+  if (!(part.type === 'tool-comfyUI' || part.type === 'tool-comfyUiImageEdit')) return EMPTY_MEDIA_ITEMS
   const toolCallId = part.toolCallId
   const progress = toolProgressMap[toolCallId]
 
@@ -509,11 +514,11 @@ function getToolImages(part: ToolUIPart<AipgTools>): MediaItem[] {
 
   // Otherwise, use output images if available
   if (part.state === 'output-available') {
-    if (!part.output) return []
+    if (!part.output) return EMPTY_MEDIA_ITEMS
     return part.output.images.map((img) => ({ ...img, state: 'done' as const }))
   }
 
-  return []
+  return EMPTY_MEDIA_ITEMS
 }
 
 function getToolProcessing(part: ToolUIPart<AipgTools>): boolean {
