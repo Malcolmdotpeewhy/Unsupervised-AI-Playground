@@ -130,6 +130,7 @@
             v-if="promptStore.getCurrentMode() === 'chat'"
             @click="handleRecordingClick"
             :disabled="(false && !speechToText.enabled) || audioRecorder.isTranscribing"
+            :aria-label="audioRecorder.isRecording ? (languages?.COM_STOP_RECORDING || 'Stop recording') : (languages?.COM_START_RECORDING || 'Start recording')"
             :title="
               !speechToText.enabled ? 'Enable Speech To Text in settings to use voice input' : ''
             "
@@ -163,6 +164,7 @@
           <Button
             v-if="readyForNewSubmit"
             @click="handleSubmitPromptClick"
+            :aria-label="languages?.COM_SUBMIT_PROMPT || 'Submit prompt'"
             class="px-3 py-1.5 bg-primary hover:bg-primary/80 rounded-lg text-sm min-w-[44px]"
           >
             →
@@ -170,6 +172,8 @@
           <Button
             v-else-if="!isStopping"
             @click="handleCancelClick"
+            :aria-label="languages?.COM_STOP_GENERATION || 'Stop generation'"
+            :title="languages?.COM_STOP_GENERATION || 'Stop generation'"
             class="px-3 py-1.5 bg-red-600 hover:bg-red-500 rounded-lg text-sm min-w-[44px] flex items-center justify-center"
           >
             <i class="svg-icon w-4 h-4 i-stop"></i>
@@ -177,6 +181,7 @@
           <Button
             v-else
             disabled
+            :aria-label="languages?.COM_GENERATING || 'Generating'"
             class="px-3 py-1.5 bg-red-400 cursor-not-allowed rounded-lg text-sm min-w-[44px] flex items-center justify-center"
           >
             <i class="svg-icon w-4 h-4 i-loading"></i>
