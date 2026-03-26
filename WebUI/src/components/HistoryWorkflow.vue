@@ -124,7 +124,7 @@
                 <div class="absolute top-1 right-1 flex items-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger as-child>
-                      <Button variant="ghost" size="icon" class="h-6 w-6" @click.stop>
+                      <Button variant="ghost" size="icon" class="h-6 w-6" @click.stop :aria-label="languages?.COM_OPTIONS || 'Options'">
                         <span class="svg-icon i-dots-vertical w-4 h-4"></span>
                       </Button>
                     </DropdownMenuTrigger>
@@ -196,6 +196,9 @@ import Model3DViewer from '@/components/Model3DViewer.vue'
 import ThumbnailPreviewStrip from './ThumbnailPreviewStrip.vue'
 import { checkIfNsfwBlocked } from '@/lib/utils'
 import { Spinner } from '@/components/ui/spinner'
+import { useI18N } from '@/assets/js/store/i18n'
+
+const { state: languages } = useI18N()
 
 const props = defineProps<{
   mode: WorkflowModeType
