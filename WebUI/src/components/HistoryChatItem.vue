@@ -140,6 +140,8 @@ const emits = defineEmits<{
 
 const conversations = useConversations()
 
+const EMPTY_ITEMS: { id: string; imageUrl: string }[] = []
+
 const computedImages = computed(() => {
   const conversation = conversations.conversationList[props.conversationKey] || []
   return conversation.flatMap((msg, msgIndex) =>
@@ -163,7 +165,7 @@ const computedImages = computed(() => {
             imageUrl: img.imageUrl ?? '',
           }))
         }
-        return []
+        return EMPTY_ITEMS
       })
       .flat()
       .filter(
