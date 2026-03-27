@@ -300,6 +300,9 @@ const emits = defineEmits<{
   (e: 'openSettings'): void
 }>()
 
+// ⚡ Bolt Performance Optimization: Use static empty array to prevent returning new reference and forcing re-renders
+const EMPTY_PREVIEW_ITEMS: { id: number, url: string, file: File }[] = []
+
 const imagePreview = computed(() => {
   if (openAiCompatibleChat.fileInput) {
     const urls = []
@@ -311,7 +314,7 @@ const imagePreview = computed(() => {
     }
     return urls
   }
-  return []
+  return EMPTY_PREVIEW_ITEMS
 })
 
 // Remove image at specified index

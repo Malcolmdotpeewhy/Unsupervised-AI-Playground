@@ -109,8 +109,11 @@ const activeVariantName = computed(() => {
   return presetsStore.activeVariantName[selectedPresetName.value] || null
 })
 
+// ⚡ Bolt Performance Optimization: Use static empty array to prevent returning new reference and forcing re-renders
+const EMPTY_VARIANT_OPTIONS: VariantOption[] = []
+
 const variantSelectorOptions = computed<VariantOption[]>(() => {
-  if (!selectedPreset.value?.variants) return []
+  if (!selectedPreset.value?.variants) return EMPTY_VARIANT_OPTIONS
 
   const options: VariantOption[] = []
 

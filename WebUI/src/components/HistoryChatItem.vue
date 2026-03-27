@@ -140,9 +140,16 @@ const emits = defineEmits<{
 
 const conversations = useConversations()
 
+// ⚡ Bolt Performance Optimization: Use static empty array to prevent returning new reference and forcing re-renders
+import type { AipgUiMessage } from '@/assets/js/store/conversations'
+
+// ⚡ Bolt Performance Optimization: Use static empty array to prevent returning new reference and forcing re-renders
+const EMPTY_IMAGES: { id: string; imageUrl: string }[] = []
+const EMPTY_CONVERSATION: AipgUiMessage[] = []
+
 const computedImages = computed(() => {
-  const conversation = conversations.conversationList[props.conversationKey] || []
-  return conversation.flatMap((msg, msgIndex) =>
+  const conversation = conversations.conversationList[props.conversationKey] || EMPTY_CONVERSATION
+  const images = conversation.flatMap((msg, msgIndex) =>
     (msg.parts || [])
       .filter(
         (part) =>
@@ -163,7 +170,7 @@ const computedImages = computed(() => {
             imageUrl: img.imageUrl ?? '',
           }))
         }
-        return []
+        return EMPTY_IMAGES
       })
       .flat()
       .filter(
@@ -177,6 +184,12 @@ const computedImages = computed(() => {
           typeof img.id === 'string',
       ),
   )
+
+  if (images.length === 0) {
+    return EMPTY_IMAGES
+  }
+
+  return images
 })
 
 const computedTitle = computed(() => {
