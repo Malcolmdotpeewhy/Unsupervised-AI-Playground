@@ -33,7 +33,7 @@
             </div>
             <ThumbnailPreviewStrip
               class="group-open/details:hidden self-center"
-              :items="imageGroup.images.filter((item) => item.type === 'image').reverse()"
+              :items="imageGroup.previewImages"
             />
           </summary>
 
@@ -245,11 +245,18 @@ const imagesByDay = computed(() => {
     groups.get(dateKey)!.images.push(image)
   }
 
-  return Array.from(groups.entries()).map(([dateKey, value]) => ({
-    dateKey,
-    label: value.label,
-    images: value.images,
-  }))
+  return Array.from(groups.entries()).map(([dateKey, value]) => {
+    // ⚡ Bolt Performance Optimization: Pre-compute filtered and reversed images
+    // Why: Prevents creating a new array reference on every render when passed to ThumbnailPreviewStrip prop
+    const previewImages = value.images.filter((item) => item.type === 'image').reverse()
+
+    return {
+      dateKey,
+      label: value.label,
+      images: value.images,
+      previewImages,
+    }
+  })
 })
 
 function formatPresetName(preset?: string, variant?: string): string {
