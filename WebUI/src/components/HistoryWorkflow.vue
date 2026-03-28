@@ -33,7 +33,7 @@
             </div>
             <ThumbnailPreviewStrip
               class="group-open/details:hidden self-center"
-              :items="imageGroup.images.filter((item) => item.type === 'image').reverse()"
+              :items="imageGroup.previewImages"
             />
           </summary>
 
@@ -249,6 +249,9 @@ const imagesByDay = computed(() => {
     dateKey,
     label: value.label,
     images: value.images,
+    // ⚡ Bolt Performance Optimization: Memoize images array filtering to prevent O(N) array allocation on every render tick for the thumbnail list.
+    // Why: Calling a function that returns a new array reference inside a v-for template binding forces the child component to re-render every time, causing render thrashing.
+    previewImages: value.images.filter((item) => item.type === 'image').reverse(),
   }))
 })
 
