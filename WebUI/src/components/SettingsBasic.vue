@@ -144,14 +144,14 @@
       <div class="flex pr-4 gap-2 items-center">
         <div :data-tooltip="i18nState.PRESET_RELOAD_INFO">
           <button
-            class="svg-icon i-refresh w-5 h-5"
+            class="svg-icon i-refresh w-5 h-5 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-sm"
             :aria-label="i18nState.PRESET_RELOAD_INFO"
             @click="presetsStore.loadPresetsFromFiles"
           ></button>
         </div>
         <div :data-tooltip="i18nState.PRESET_DOWNLOAD_INFO">
           <button
-            class="svg-icon i-download-cloud w-5 h-5"
+            class="svg-icon i-download-cloud w-5 h-5 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-sm"
             :aria-label="i18nState.PRESET_DOWNLOAD_INFO"
             @click="loadPresetsFromIntel"
           ></button>
@@ -161,13 +161,13 @@
     <div class="flex flex-col pt-5 gap-2">
       <button
         @click="globalSetup.loadingState = 'manageInstallations'"
-        class="bg-primary hover:bg-primary/80 px-3 py-1.5 rounded-lg text-sm"
+        class="bg-primary hover:bg-primary/80 px-3 py-1.5 rounded-lg text-sm focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
       >
         {{ languages.SETTINGS_MODEL_MANAGE_BACKEND }}
       </button>
       <button
         @click="isTemplateEditorVisible = !isTemplateEditorVisible"
-        class="bg-secondary hover:bg-secondary/80 px-3 py-1.5 rounded-lg text-sm text-foreground"
+        class="bg-secondary hover:bg-secondary/80 px-3 py-1.5 rounded-lg text-sm text-foreground focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
       >
         Open Pipeline Template Editor
       </button>
