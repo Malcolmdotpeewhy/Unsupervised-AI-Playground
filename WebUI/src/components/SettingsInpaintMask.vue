@@ -12,6 +12,8 @@
                 : 'bg-background text-foreground border-border',
             ]"
             @click="mode = 'brush'"
+            title="Brush"
+            aria-label="Brush tool for mask"
           >
             <PaintBrushIcon class="size-4"></PaintBrushIcon>
           </button>
@@ -23,6 +25,8 @@
                 : 'bg-background text-foreground border-border',
             ]"
             @click="mode = 'eraser'"
+            title="Eraser"
+            aria-label="Eraser tool for mask"
           >
             <TrashIcon class="size-4"></TrashIcon>
           </button>
@@ -30,11 +34,13 @@
       </div>
       <div class="flex items-center gap-2">
         <Slider v-model="brushSize" :min="10" :max="100" :step="5" class="w-16" />
-        <span class="text-sm text-foreground/60 w-12">{{ brushSize }}px</span>
+        <span class="text-sm text-foreground/60 w-12" aria-hidden="true">{{ brushSize }}px</span>
       </div>
       <button
         class="px-3 py-1 rounded border bg-background text-foreground border-border hover:bg-muted"
         @click="clearMask"
+        title="Clear Mask"
+        aria-label="Clear Mask"
       >
         <NoSymbolIcon class="size-4"></NoSymbolIcon>
       </button>
