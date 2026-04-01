@@ -5,7 +5,12 @@
     class="flex shrink-0 flex-col overflow-y-auto bg-gradient-to-r from-[#05010fb4]/20 to-[#05010fb4]/70 transition-all"
   >
     <div class="flex justify-end">
-      <button @click="isHistoryVisible = !isHistoryVisible" class="m-2 flex text-foreground">
+      <button
+        @click="isHistoryVisible = !isHistoryVisible"
+        class="m-2 flex text-foreground focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-md"
+        :aria-label="isHistoryVisible ? (languages.COM_HIDE_HISTORY || 'Hide History') : (languages.COM_SHOW_HISTORY || 'Show History')"
+        :title="isHistoryVisible ? (languages.COM_HIDE_HISTORY || 'Hide History') : (languages.COM_SHOW_HISTORY || 'Show History')"
+      >
         <img
           v-if="!isHistoryVisible"
           :class="textInference.iconSizeClass"
