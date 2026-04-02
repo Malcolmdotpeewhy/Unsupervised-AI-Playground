@@ -97,8 +97,8 @@
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <ThumbnailPreviewStrip :items="conversationImages[key] || []" />
-    </div>
+      <ThumbnailPreviewStrip :items="conversationImages[key] || EMPTY_IMAGES" />
+    </HistoryChatItem>
   </div>
 </template>
 
@@ -108,6 +108,9 @@ import HistoryChatItem from './HistoryChatItem.vue'
 import { useConversations } from '@/assets/js/store/conversations'
 
 const conversations = useConversations()
+
+// ⚡ Bolt Performance Optimization: Prevent render thrashing by using static empty array reference
+const EMPTY_IMAGES: { id: string; imageUrl: string }[] = []
 const emits = defineEmits<{
   (e: 'conversationSelected'): void
 }>()
