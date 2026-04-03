@@ -26,8 +26,7 @@
         :key="'if' + conversationKey"
         @click="select(conversationKey)"
         :title="
-          conversation?.[0]?.parts.find((part) => part.type === 'text')?.text.substring(0, 50) ??
-          languages.ANSWER_NEW_CONVERSATION
+          conversationTitles[conversationKey] || languages.ANSWER_NEW_CONVERSATION
         "
         class="group relative cursor-pointer text-muted-foreground"
       >
@@ -48,9 +47,7 @@
             <template v-else>
               <span class="w-45 whitespace-nowrap overflow-x-auto text-ellipsis text-sm ml-1">
                 {{
-                  conversation?.[0]?.parts
-                    .find((part) => part.type === 'text')
-                    ?.text.substring(0, 50) ?? languages.ANSWER_NEW_CONVERSATION
+                  conversationTitles[conversationKey] || languages.ANSWER_NEW_CONVERSATION
                 }}
               </span>
             </template>
@@ -165,8 +162,7 @@
         :inVisibleKey="conversationKey"
         @click="select(conversationKey)"
         :title="
-          conversation?.[0]?.parts.find((part) => part.type === 'text')?.text?.substring(0, 50) ??
-          languages.ANSWER_NEW_CONVERSATION
+          conversationTitles[conversationKey] || languages.ANSWER_NEW_CONVERSATION
         "
         class="flex justify-between items-center h-12 py-2 cursor-pointer hover:bg-[#00c4fa]/50"
         :class="conversations.activeKey === conversationKey ? 'bg-[#00c4fa]/50' : ''"
@@ -186,6 +182,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { useConversations } from '@/assets/js/store/conversations'
 import { useTextInference } from '@/assets/js/store/textInference'
 import { Button } from '@/components/ui/button'
@@ -221,9 +218,11 @@ import {
   ChatBubbleLeftRightIcon,
   EllipsisHorizontalIcon,
 } from '@heroicons/vue/24/outline'
+import { useI18N } from '@/assets/js/store/i18n'
 
 const conversations = useConversations()
 const textInference = useTextInference()
+const { state: languages } = useI18N()
 const isHistoryVisible = ref(false)
 
 const menuOpenKey = ref<string | null>(null)
@@ -235,6 +234,26 @@ function onMenuOpenChange(conversationKey: string, open: boolean) {
       : menuOpenKey.value
 }
 
+// ⚡ Bolt Performance Optimization: Memoize conversation titles to prevent O(N) redundant array lookups (.find) on every render tick.
+// Why: Executing inline array methods like .find() inside v-for template bindings causes unnecessary redundant calculations during re-renders.
+const conversationTitles = computed(() => {
+  const titles: Record<string, string> = {}
+  for (const [key, conversation] of Object.entries(conversations.conversationList)) {
+    if (!conversation || conversation.length === 0) {
+      titles[key] = ''
+      continue
+    }
+    const firstMessage = conversation[0]
+    if (firstMessage.metadata?.conversationTitle) {
+      titles[key] = firstMessage.metadata.conversationTitle
+      continue
+    }
+    const titlePart = firstMessage.parts?.find((part) => part.type === 'text')
+    titles[key] = titlePart ? titlePart.text.substring(0, 50) : ''
+  }
+  return titles
+})
+
 // State for rename dialog
 const renameDialogOpen = ref(false)
 const renameKey = ref<string | null>(null)
@@ -242,10 +261,8 @@ const renameTitle = ref('')
 
 function openRenameDialog(conversationKey: string) {
   renameKey.value = conversationKey
-  const existingTitle = conversations.conversationList[conversationKey]?.[0]?.parts.find(
-    (part) => part.type === 'text',
-  )?.text
-  renameTitle.value = existingTitle ?? ''
+  const existingTitle = conversationTitles.value[conversationKey]
+  renameTitle.value = existingTitle ?? languages.ANSWER_NEW_CONVERSATION
   renameDialogOpen.value = true
 }
 
