@@ -109,8 +109,11 @@ const activeVariantName = computed(() => {
   return presetsStore.activeVariantName[selectedPresetName.value] || null
 })
 
+// ⚡ Bolt Performance Optimization: Use a static empty array constant. Why: Prevents creating a new array reference on every evaluation when there are no variants, avoiding render thrashing in Vue.
+const EMPTY_VARIANTS: VariantOption[] = []
+
 const variantSelectorOptions = computed<VariantOption[]>(() => {
-  if (!selectedPreset.value?.variants) return []
+  if (!selectedPreset.value?.variants) return EMPTY_VARIANTS
 
   const options: VariantOption[] = []
 
