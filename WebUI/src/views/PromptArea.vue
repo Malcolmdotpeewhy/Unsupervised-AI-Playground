@@ -23,7 +23,7 @@
           <button
             @click="textInference.decreaseFontSize()"
             :disabled="textInference.isMinSize"
-            class="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            class="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-md"
             title="Decrease font size"
           >
             <MagnifyingGlassMinusIcon class="size-5" />
@@ -31,7 +31,7 @@
           <button
             @click="textInference.increaseFontSize()"
             :disabled="textInference.isMaxSize"
-            class="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            class="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-md"
             title="Increase font size"
           >
             <MagnifyingGlassPlusIcon class="size-5" />
@@ -58,7 +58,7 @@
             <span class="truncate max-w-[200px]" :title="doc.filename">{{ doc.filename }}</span>
             <button
               @click="textInference.updateFileCheckStatus(doc.hash, false)"
-              class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+              class="ml-1 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive focus-visible:opacity-100 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded"
               title="Remove from context"
             >
               <XMarkIcon class="size-4" />
@@ -91,7 +91,7 @@
             />
             <button
               @click="removeImage(preview.id)"
-              class="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background rounded-full p-0.5 text-muted-foreground hover:text-destructive"
+              class="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background rounded-full p-0.5 text-muted-foreground hover:text-destructive focus-visible:opacity-100 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
               title="Remove image"
             >
               <XMarkIcon class="size-4" />
