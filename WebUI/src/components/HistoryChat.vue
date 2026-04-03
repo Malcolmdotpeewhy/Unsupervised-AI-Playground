@@ -97,8 +97,8 @@
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <ThumbnailPreviewStrip :items="conversationImages[key] || []" />
-    </div>
+      <ThumbnailPreviewStrip :items="conversationImages[key] || EMPTY_IMAGES" />
+    </HistoryChatItem>
   </div>
 </template>
 
@@ -114,6 +114,8 @@ const emits = defineEmits<{
 
 // ⚡ Bolt Performance Optimization: Memoize images mapping to prevent O(N) array allocation on every render tick for the conversation list.
 // Why: Calling a function that returns a new array reference inside a v-for template binding forces the child component to re-render every time, causing render thrashing.
+const EMPTY_IMAGES: { id: string; imageUrl: string }[] = []
+
 const conversationImages = computed(() => {
   const list = conversations.conversationList ?? {}
   const imagesMap: Record<string, { id: string; imageUrl: string }[]> = {}
@@ -140,7 +142,7 @@ const conversationImages = computed(() => {
               imageUrl: img.imageUrl ?? '',
             }))
           }
-          return []
+          return EMPTY_IMAGES
         })
         .flat()
         .filter(
