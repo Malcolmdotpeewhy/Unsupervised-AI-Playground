@@ -13,7 +13,8 @@
             {{ dialogStore.maskEditorMode === 'outpaint' ? 'Outpaint Canvas' : 'Inpaint Mask' }}
           </h2>
           <button
-            class="p-2 rounded hover:bg-muted transition-colors"
+            class="p-2 rounded hover:bg-muted transition-colors focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
+            :aria-label="languages?.COM_CLOSE || 'Close'"
             @click="dialogStore.closeMaskEditorDialog"
           >
             <XMarkIcon class="size-5" />
@@ -73,6 +74,7 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
+import { useI18N } from '@/assets/js/store/i18n'
 import { useDialogStore } from '@/assets/js/store/dialogs'
 import { useImageGenerationPresets } from '@/assets/js/store/imageGenerationPresets'
 import SettingsOutpaintCanvas from './SettingsOutpaintCanvas.vue'
@@ -80,6 +82,7 @@ import SettingsInpaintMask from './SettingsInpaintMask.vue'
 
 const dialogStore = useDialogStore()
 const imageGeneration = useImageGenerationPresets()
+const languages = useI18N().state
 
 const animate = ref(false)
 
