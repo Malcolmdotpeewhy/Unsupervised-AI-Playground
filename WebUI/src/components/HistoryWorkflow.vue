@@ -33,7 +33,7 @@
             </div>
             <ThumbnailPreviewStrip
               class="group-open/details:hidden self-center"
-              :items="imageGroup.images.filter((item) => item.type === 'image').reverse()"
+              :items="imageGroup.previewImages"
             />
           </summary>
 
@@ -245,10 +245,14 @@ const imagesByDay = computed(() => {
     groups.get(dateKey)!.images.push(image)
   }
 
+  // ⚡ Bolt Performance Optimization: Pre-compute preview images array to avoid O(N) thrashing
+  // Why: Passing an inline .filter().reverse() result directly to a child component prop in a v-for
+  // generates a new reference every render cycle, forcing ThumbnailPreviewStrip to re-render constantly.
   return Array.from(groups.entries()).map(([dateKey, value]) => ({
     dateKey,
     label: value.label,
     images: value.images,
+    previewImages: value.images.filter((item) => item.type === 'image').reverse(),
   }))
 })
 
