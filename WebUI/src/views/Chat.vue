@@ -1,9 +1,10 @@
 <template>
   <button
     v-if="showScrollButton"
-    class="absolute bottom-65 left-1/2 transform -translate-x-1/2 bg-background text-foreground p-2 rounded-full shadow-lg z-50 hover:bg-muted transition-colors"
+    class="absolute bottom-65 left-1/2 transform -translate-x-1/2 bg-background text-foreground p-2 rounded-full shadow-lg z-50 hover:bg-muted transition-colors focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
     @click="scrollToBottom()"
     title="Scroll to bottom"
+    aria-label="Scroll to bottom"
   >
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -62,8 +63,9 @@
               "
             ></div>
             <button
-              class="flex items-center gap-1 text-xs text-muted-foreground mt-1"
+              class="flex items-center gap-1 text-xs text-muted-foreground mt-1 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-sm"
               :title="languages.COM_COPY"
+              :aria-label="languages.COM_COPY"
               @click="copyText(message.parts.find((part) => part.type === 'text')?.text || '')"
             >
               <span class="svg-icon i-copy w-4 h-4"></span>
@@ -94,7 +96,8 @@
                   }}
                 </span>
                 <!-- Display RAG source if available -->
-                <span
+                <button
+                  type="button"
                   v-if="
                     (message.metadata as { ragSource?: string })?.ragSource ||
                     ragSourcePerMessageId[message.id]
@@ -102,19 +105,22 @@
                   @click="
                     showRagSourcePerMessageId[message.id] = !showRagSourcePerMessageId[message.id]
                   "
-                  class="bg-primary text-foreground font-sans rounded-md px-1 py-1 cursor-pointer"
+                  class="bg-primary text-foreground font-sans rounded-md px-1 py-1 cursor-pointer focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
                   :class="textInference.nameSizeClass"
+                  :aria-expanded="showRagSourcePerMessageId[message.id]"
+                  :aria-label="showRagSourcePerMessageId[message.id] ? (languages?.COM_HIDE || 'Hide') + ' ' + (i18nState.RAG_SOURCE || 'Source Docs') : (languages?.COM_SHOW || 'Show') + ' ' + (i18nState.RAG_SOURCE || 'Source Docs')"
+                  :title="showRagSourcePerMessageId[message.id] ? (languages?.COM_HIDE || 'Hide') + ' ' + (i18nState.RAG_SOURCE || 'Source Docs') : (languages?.COM_SHOW || 'Show') + ' ' + (i18nState.RAG_SOURCE || 'Source Docs')"
                 >
                   Source Docs
-                  <button class="ml-1">
+                  <span class="ml-1">
                     <img
                       v-if="showRagSourcePerMessageId[message.id]"
                       src="../assets/svg/arrow-up.svg"
-                      class="w-3 h-3"
+                      class="w-3 h-3 inline-block"
                     />
-                    <img v-else src="../assets/svg/arrow-down.svg" class="w-3 h-3" />
-                  </button>
-                </span>
+                    <img v-else src="../assets/svg/arrow-down.svg" class="w-3 h-3 inline-block" />
+                  </span>
+                </button>
               </div>
             </div>
 
@@ -150,7 +156,10 @@
                       showThinkingTextPerMessageId[message.id] =
                         !showThinkingTextPerMessageId[message.id]
                     "
-                    class="ml-1"
+                    class="ml-1 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-sm"
+                    :aria-expanded="showThinkingTextPerMessageId[message.id]"
+                    :aria-label="showThinkingTextPerMessageId[message.id] ? (languages?.COM_HIDE || 'Hide Reasoning') : (languages?.COM_SHOW || 'Show Reasoning')"
+                    :title="showThinkingTextPerMessageId[message.id] ? (languages?.COM_HIDE || 'Hide Reasoning') : (languages?.COM_SHOW || 'Show Reasoning')"
                   >
                     <img
                       v-if="showThinkingTextPerMessageId[message.id]"
@@ -263,16 +272,18 @@
             </div>
             <div class="answer-tools flex gap-3 items-center text-muted-foreground">
               <button
-                class="flex items-end"
+                class="flex items-end focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-sm"
                 :title="languages.COM_COPY"
+                :aria-label="languages.COM_COPY"
                 @click="copyText(message.parts.find((part) => part.type === 'text')?.text || '')"
               >
                 <span class="svg-icon i-copy w-4 h-4"></span>
                 <span class="text-xs ml-1">{{ languages.COM_COPY }}</span>
               </button>
               <button
-                class="flex items-end"
+                class="flex items-end focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-sm"
                 :title="languages.COM_REGENERATE"
+                :aria-label="languages.COM_REGENERATE"
                 @click="() => openAiCompatibleChat.regenerate(message.id)"
                 v-if="i + 1 == activeConversation.length"
                 :disabled="openAiCompatibleChat.processing"
@@ -282,8 +293,9 @@
                 <span class="text-xs ml-1">{{ languages.COM_REGENERATE }}</span>
               </button>
               <button
-                class="flex items-end"
+                class="flex items-end focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded-sm"
                 :title="languages.COM_DELETE"
+                :aria-label="languages.COM_DELETE"
                 @click="
                   () => {
                     openAiCompatibleChat.removeMessage(message.id)
