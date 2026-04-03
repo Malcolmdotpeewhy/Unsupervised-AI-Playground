@@ -140,8 +140,13 @@ const emits = defineEmits<{
 
 const conversations = useConversations()
 
+import type { AipgUiMessage } from '@/assets/js/store/conversations'
+
+const EMPTY_MESSAGES: AipgUiMessage[] = []
+const EMPTY_IMAGES: { id: string; imageUrl: string }[] = []
+
 const computedImages = computed(() => {
-  const conversation = conversations.conversationList[props.conversationKey] || []
+  const conversation = conversations.conversationList[props.conversationKey] || EMPTY_MESSAGES
   return conversation.flatMap((msg, msgIndex) =>
     (msg.parts || [])
       .filter(
@@ -163,7 +168,7 @@ const computedImages = computed(() => {
             imageUrl: img.imageUrl ?? '',
           }))
         }
-        return []
+        return EMPTY_IMAGES
       })
       .flat()
       .filter(

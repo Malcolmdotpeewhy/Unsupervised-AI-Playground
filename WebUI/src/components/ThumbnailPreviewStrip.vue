@@ -14,6 +14,7 @@
 interface MediaItem {
   id: string
   imageUrl: string
+  type?: string
 }
 
 defineProps<{ items: MediaItem[] }>()
