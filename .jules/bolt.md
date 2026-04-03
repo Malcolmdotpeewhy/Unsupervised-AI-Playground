@@ -17,3 +17,7 @@ In Vue.js, inline function calls like `sanitizeMarkdown(parse(text))` inside `v-
 ## 2024-11-20 - Prevent Component Render Thrashing from Array Methods in Vue Templates
 **Learning:** Returning inline arrays (e.g. `[]` or `.map()`) from functions called inside Vue templates, or using inline array methods like `.filter()` in `v-for` loops destroys Vue's reactivity memoization. This results in severe O(N) render thrashing as Vue interprets the new array reference as a state change on every render cycle. This is particularly noticeable in components updated frequently, like Chat views receiving streaming LLM responses.
 **Action:** Always pre-define a static constant like `const EMPTY_ARRAY = []` instead of returning `[]`. Extract complex `v-for` filter logic into computed properties or wrap the loop body in `<template v-if="...">`. Memoize `.map()` results (using `Map` or `computed`) and clear caches in `onUnmounted` to prevent memory leaks.
+
+## 2024-05-18 - [Prevent array allocation inside computed evaluations]
+**Learning:** In Vue components, defining inline arrays (e.g. `['imageGen', 'imageEdit', 'video']`) directly within computed property functions or watchers causes those arrays to be re-allocated in memory every time the reactivity system triggers evaluation. This creates unnecessary overhead and potential render thrashing.
+**Action:** Always extract static arrays to constants outside of reactive functions (e.g. `const COMFY_UI_MODES = [...]`) to prevent O(N) reallocation and preserve array references across reactivity cycles.
