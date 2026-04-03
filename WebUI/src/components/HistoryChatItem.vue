@@ -14,7 +14,7 @@
       </span>
       <DropdownMenu :open="menuOpen" @update:open="(open) => onMenuOpenChange(open)">
         <DropdownMenuTrigger as-child>
-          <Button variant="ghost" size="icon" class="h-6 w-6" @click.stop>
+          <Button variant="ghost" size="icon" class="h-6 w-6" @click.stop :aria-label="languages?.COM_OPTIONS || 'Options'">
             <span class="svg-icon i-dots-vertical w-4 h-4"></span>
           </Button>
         </DropdownMenuTrigger>
@@ -127,6 +127,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useConversations } from '@/assets/js/store/conversations'
+import { useI18N } from '@/assets/js/store/i18n'
+
+const { state: languages } = useI18N()
 
 // ⚡ Bolt Performance Optimization: Extract complex v-for body into child component.
 // Why: Prevents render thrashing by preserving array references and isolating reactivity.
