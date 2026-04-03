@@ -18,6 +18,7 @@
   "COM_GENERATING": "Generating",
   "COM_HISTORY": "History",
   "COM_SHOW_HISTORY": "Show History",
+  "COM_HIDE_HISTORY": "Hide History",
   "COM_POST_TO_ENHANCE_PROCESS": "Post To Enhance Process",
   "COM_POST_TO_IMAGE_EDIT": "Post To Image Edit Mode",
   "COM_POST_TO_VIDEO": "Post To Video Mode",
@@ -286,7 +287,6 @@
   "SETTINGS_DEVELOPER_OPEN_DEV_CONSOLE_ON_STARTUP": "Open Developer Console on Startup",
   "SETTINGS_DEVELOPER_KEEP_MODELS_LOADED": "Keep Models Loaded",
   "SETTINGS_DEVELOPER_KEEP_MODELS_LOADED_INFO": "When enabled, chat and image generation models stay loaded in memory simultaneously. Requires more VRAM but avoids reloading models when switching between chat and image generation.",
-
   "BACKEND_STOP": "Stop Backend",
   "BACKEND_START": "Start Backend",
   "BACKEND_REINSTALL": "Reinstall Backend",
@@ -307,7 +307,6 @@
   "BACKEND_COMFYUI_PARAMETERS_LABEL": "Startup Parameters",
   "BACKEND_COMFYUI_PARAMETERS_DESCRIPTION": "Command-line arguments passed to ComfyUI on startup. Restart required to apply changes.",
   "BACKEND_CUSTOM_PARAMETERS_HINT": "Custom startup parameters",
-
   "COM_ADD_FILE_TO_RAG": "Add file to the list of available documents",
   "COM_ADD_FILE_TO_RAG_CHECKBOX": "Add/Remove file to/from the list of documents used to generate answers",
   "COM_CHECK_ALL_FILES": "Add all files to the list of documents used to generate answers",
