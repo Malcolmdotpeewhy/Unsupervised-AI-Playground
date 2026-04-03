@@ -94,7 +94,7 @@
       <ComfyDynamic></ComfyDynamic>
 
       <div class="border-t border-border items-center flex-wrap grid grid-cols-1 gap-2">
-        <button class="mt-4" @click="imageGeneration.resetActivePresetSettings">
+        <button class="mt-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded" @click="imageGeneration.resetActivePresetSettings">
           <div class="svg-icon i-refresh">Reset</div>
           {{ languages.COM_LOAD_PRESET_DEFAULTS || 'Reset Preset Settings' }}
         </button>
