@@ -21,10 +21,15 @@
             @keyup.enter="addModel"
           ></Input>
           <span
+            role="button"
+            tabindex="0"
+            :aria-label="i18nState.DOWNLOADER_INFO || 'Info'"
             @mouseover="showInfo = true"
             @mouseout="showInfo = false"
+            @focus="showInfo = true"
+            @blur="showInfo = false"
             style="vertical-align: middle"
-            class="svg-icon i-info w-7 h-7 px-6"
+            class="svg-icon i-info w-7 h-7 px-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
           ></span>
         </div>
         <span
@@ -89,10 +94,15 @@
                 @keyup.enter="addModel"
               ></Input>
               <span
+                role="button"
+                tabindex="0"
+                :aria-label="i18nState.DOWNLOADER_INFO || 'Info'"
                 @mouseover="showVisionInfo = true"
                 @mouseout="showVisionInfo = false"
+                @focus="showVisionInfo = true"
+                @blur="showVisionInfo = false"
                 style="vertical-align: middle"
-                class="svg-icon i-info w-7 h-7 px-6"
+                class="svg-icon i-info w-7 h-7 px-6 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
               ></span>
             </div>
             <span
