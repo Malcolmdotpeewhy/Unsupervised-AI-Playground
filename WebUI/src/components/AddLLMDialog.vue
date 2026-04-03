@@ -21,10 +21,15 @@
             @keyup.enter="addModel"
           ></Input>
           <span
+            role="button"
+            tabindex="0"
+            :aria-label="i18nState.REQUEST_LLM_MODEL_DESCRIPTION || 'More information'"
             @mouseover="showInfo = true"
             @mouseout="showInfo = false"
+            @focus="showInfo = true"
+            @blur="showInfo = false"
             style="vertical-align: middle"
-            class="svg-icon i-info w-7 h-7 px-6"
+            class="svg-icon i-info w-7 h-7 px-6 cursor-pointer focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded"
           ></span>
         </div>
         <span
@@ -65,8 +70,11 @@
 
           <!-- Max Context Size -->
           <div class="flex flex-col gap-2">
-            <Label class="text-sm font-medium">Max Context Size (tokens)</Label>
+            <Label for="max-context-size" class="text-sm font-medium"
+              >Max Context Size (tokens)</Label
+            >
             <Input
+              id="max-context-size"
               type="number"
               v-model="maxContextSize"
               placeholder="32768"
@@ -89,10 +97,15 @@
                 @keyup.enter="addModel"
               ></Input>
               <span
+                role="button"
+                tabindex="0"
+                :aria-label="i18nState.REQUEST_LLM_VISION_MODEL_DESCRIPTION || 'More information'"
                 @mouseover="showVisionInfo = true"
                 @mouseout="showVisionInfo = false"
+                @focus="showVisionInfo = true"
+                @blur="showVisionInfo = false"
                 style="vertical-align: middle"
-                class="svg-icon i-info w-7 h-7 px-6"
+                class="svg-icon i-info w-7 h-7 px-6 cursor-pointer focus-visible:ring-2 focus:outline-none focus-visible:ring-primary rounded"
               ></span>
             </div>
             <span
@@ -105,10 +118,16 @@
         </div>
         <p v-show="addModelError" style="color: #f44336">{{ addModelErrorMessage }}</p>
         <div class="flex justify-center items-center gap-9">
-          <button @click="closeAdd" class="bg-muted text-foreground py-1 px-4 rounded">
+          <button
+            @click="closeAdd"
+            class="bg-muted text-foreground py-1 px-4 rounded hover:bg-muted/80 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
+          >
             {{ i18nState.COM_CLOSE }}
           </button>
-          <button @click="addModel" class="bg-muted text-foreground py-1 px-4 rounded">
+          <button
+            @click="addModel"
+            class="bg-muted text-foreground py-1 px-4 rounded hover:bg-muted/80 focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
+          >
             {{ i18nState.COM_ADD }}
           </button>
         </div>
