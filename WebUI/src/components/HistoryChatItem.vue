@@ -128,6 +128,10 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useConversations } from '@/assets/js/store/conversations'
 
+// ⚡ Bolt Performance Optimization: Use a static empty array constant to prevent creating a new array reference on each iteration
+// Why: Returning an inline `[]` inside a loop or mapping function creates a new array reference, which forces Vue to unnecessarily track it and trigger re-renders.
+const EMPTY_ITEMS: { id: string; imageUrl: string }[] = []
+
 // ⚡ Bolt Performance Optimization: Extract complex v-for body into child component.
 // Why: Prevents render thrashing by preserving array references and isolating reactivity.
 const props = defineProps<{
@@ -157,13 +161,13 @@ const computedImages = computed(() => {
           typeof part.output === 'object' &&
           'images' in part.output
         ) {
-          const images = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? []
+          const images = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? EMPTY_ITEMS
           return images.map((img, imgIndex) => ({
             id: `${msgIndex}-${partIndex}-${imgIndex}`,
             imageUrl: img.imageUrl ?? '',
           }))
         }
-        return []
+        return EMPTY_ITEMS
       })
       .flat()
       .filter(

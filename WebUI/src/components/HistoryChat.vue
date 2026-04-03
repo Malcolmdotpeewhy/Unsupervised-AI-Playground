@@ -97,8 +97,8 @@
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <ThumbnailPreviewStrip :items="conversationImages[key] || []" />
-    </div>
+      <ThumbnailPreviewStrip :items="conversationImages[key] || EMPTY_ITEMS" />
+    </HistoryChatItem>
   </div>
 </template>
 
@@ -106,6 +106,10 @@
 import { computed } from 'vue'
 import HistoryChatItem from './HistoryChatItem.vue'
 import { useConversations } from '@/assets/js/store/conversations'
+
+// ⚡ Bolt Performance Optimization: Use a static empty array constant instead of inline array definitions inside loops
+// Why: Returning an inline `[]` inside a loop or mapped function creates a new reference each time, causing unnecessary re-renders in children.
+const EMPTY_ITEMS: { id: string; imageUrl: string }[] = []
 
 const conversations = useConversations()
 const emits = defineEmits<{
@@ -134,13 +138,13 @@ const conversationImages = computed(() => {
             typeof part.output === 'object' &&
             'images' in part.output
           ) {
-            const images = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? []
+            const images = (part.output as { images?: Array<{ imageUrl?: string }> }).images ?? EMPTY_ITEMS
             return images.map((img, imgIndex) => ({
               id: `${msgIndex}-${partIndex}-${imgIndex}`,
               imageUrl: img.imageUrl ?? '',
             }))
           }
-          return []
+          return EMPTY_ITEMS
         })
         .flat()
         .filter(
