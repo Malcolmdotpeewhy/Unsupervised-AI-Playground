@@ -340,8 +340,12 @@ const displayComponents = computed(() => {
 })
 
 // STT device selection
+
+// ⚡ Bolt Performance Optimization: Use a static constant for an empty STT device list.
+// Why: Returning an inline `[]` on every evaluation of the computed property creates a new array reference, triggering unnecessary Vue re-renders in children like `DropDownNew`.
+const EMPTY_STT_DEVICES: InferenceDevice[] = []
 const sttDevices = computed(
-  () => backendServices.info.find((bs) => bs.serviceName === 'openvino-backend')?.sttDevices ?? [],
+  () => backendServices.info.find((bs) => bs.serviceName === 'openvino-backend')?.sttDevices ?? EMPTY_STT_DEVICES,
 )
 const selectedSttDevice = computed(
   () => sttDevices.value.find((d: InferenceDevice) => d.selected) ?? sttDevices.value[0],
