@@ -115,7 +115,7 @@
         </div>
         <div class="absolute bottom-4 left-3 flex gap-2">
           <Button
-            v-for="mode in ['chat', 'imageGen', 'imageEdit', 'video'] as ModeType[]"
+            v-for="mode in ['chat', ...COMFY_UI_MODES] as ModeType[]"
             :variant="promptStore.getCurrentMode() === mode ? 'default' : 'secondary'"
             :key="mode"
             @click="promptStore.setCurrentMode(mode)"
@@ -253,13 +253,15 @@ const canAttachDocuments = computed(() => {
   return activeChatPreset.value?.enableRAG === true
 })
 
+// Memoize static array to prevent O(N) allocation on every computed evaluation
+const COMFY_UI_MODES: ModeType[] = ['imageGen', 'imageEdit', 'video']
+
 // Should show image upload button (conditional for ComfyUI presets)
 const shouldShowImageUploadButton = computed(() => {
   const mode = promptStore.getCurrentMode()
-  const comfyUiModes: ModeType[] = ['imageGen', 'imageEdit', 'video']
 
   // For ComfyUI modes, only show if preset has required image input
-  if (comfyUiModes.includes(mode)) {
+  if (COMFY_UI_MODES.includes(mode)) {
     if (!imageGeneration.activePreset) return false
     if (imageGeneration.activePreset.type !== 'comfy') return false
 
@@ -401,8 +403,7 @@ watch(isProcessing, (newValue, oldValue) => {
 watch(
   () => promptStore.getCurrentMode(),
   (newMode) => {
-    const comfyUiModes: ModeType[] = ['imageGen', 'imageEdit', 'video']
-    if (comfyUiModes.includes(newMode)) {
+    if (COMFY_UI_MODES.includes(newMode)) {
       // When switching to ComfyUI modes, sync the store prompt to the textarea
       prompt.value = imageGeneration.prompt || ''
     }
@@ -414,8 +415,7 @@ watch(
   () => imageGeneration.prompt,
   (newPrompt) => {
     const currentMode = promptStore.getCurrentMode()
-    const comfyUiModes: ModeType[] = ['imageGen', 'imageEdit', 'video']
-    if (comfyUiModes.includes(currentMode)) {
+    if (COMFY_UI_MODES.includes(currentMode)) {
       // Only sync if the prompt actually changed to avoid unnecessary updates
       if (prompt.value !== newPrompt) {
         prompt.value = newPrompt || ''
@@ -484,10 +484,9 @@ function isDocumentFile(file: File): boolean {
 // Get accepted file types based on preset capabilities
 function getAcceptedFileTypes(): string {
   const mode = promptStore.getCurrentMode()
-  const comfyUiModes: ModeType[] = ['imageGen', 'imageEdit', 'video']
 
   // For ComfyUI modes with image input, only accept images
-  if (comfyUiModes.includes(mode) && shouldShowImageUploadButton.value) {
+  if (COMFY_UI_MODES.includes(mode) && shouldShowImageUploadButton.value) {
     return 'image/*'
   }
 
@@ -556,8 +555,7 @@ async function handleImageFiles(imageFiles: File[]) {
   if (imageFiles.length === 0) return
 
   // For ComfyUI modes, route to ComfyUI-specific handler
-  const comfyUiModes: ModeType[] = ['imageGen', 'imageEdit', 'video']
-  if (comfyUiModes.includes(promptStore.getCurrentMode()) && shouldShowImageUploadButton.value) {
+  if (COMFY_UI_MODES.includes(promptStore.getCurrentMode()) && shouldShowImageUploadButton.value) {
     await handleComfyUIImageUpload(imageFiles)
     return
   }
@@ -692,8 +690,7 @@ async function onDrop(files: File[] | null) {
   }
 
   // For ComfyUI modes with image input, only accept images
-  const comfyUiModes: ModeType[] = ['imageGen', 'imageEdit', 'video']
-  if (comfyUiModes.includes(promptStore.getCurrentMode()) && shouldShowImageUploadButton.value) {
+  if (COMFY_UI_MODES.includes(promptStore.getCurrentMode()) && shouldShowImageUploadButton.value) {
     // Filter out non-image files
     if (documentFiles.length > 0) {
       toast.error('Only images can be uploaded in this mode.')
