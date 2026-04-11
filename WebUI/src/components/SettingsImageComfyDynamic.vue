@@ -36,7 +36,7 @@
       </Label>
 
       <!--    Number    -->
-      <div v-if="input.type === 'number'" class="flex gap-2">
+      <div v-if="input.type === 'number'" class="flex items-center gap-2">
         <Slider
           v-model="input.current.value as number"
           :min="input.min"
@@ -44,7 +44,12 @@
           :step="input.step"
           :disabled="!isModifiable(input)"
         ></Slider>
-        <span>{{ input.current.value }}</span>
+        <Input
+          type="number"
+          v-model.number="input.current.value as number"
+          class="w-20"
+          :disabled="!isModifiable(input)"
+        />
       </div>
 
       <!--    Image (with preview support for inpaint/outpaint)    -->
