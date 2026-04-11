@@ -27,15 +27,23 @@
         class="grid grid-cols-[120px_1fr] items-center gap-4"
       >
         <Label class="whitespace-nowrap">
-          {{ languages.SETTINGS_MODEL_IMAGE_STEPS }}: {{ imageGeneration.inferenceSteps }}
+          {{ languages.SETTINGS_MODEL_IMAGE_STEPS }}
         </Label>
-        <Slider
-          v-model="imageGeneration.inferenceSteps"
-          :min="1"
-          :max="50"
-          :step="1"
-          :disabled="!modifiable('inferenceSteps')"
-        />
+        <div class="flex items-center gap-2">
+          <Slider
+            v-model="imageGeneration.inferenceSteps"
+            :min="1"
+            :max="50"
+            :step="1"
+            :disabled="!modifiable('inferenceSteps')"
+          />
+          <Input
+            type="number"
+            v-model.number="imageGeneration.inferenceSteps"
+            class="w-20"
+            :disabled="!modifiable('inferenceSteps')"
+          />
+        </div>
       </div>
 
       <div
@@ -43,15 +51,23 @@
         class="grid grid-cols-[120px_1fr] items-center gap-4"
       >
         <Label class="whitespace-nowrap">
-          {{ languages.SETTINGS_MODEL_BATCH_COUNT }}: {{ imageGeneration.batchSize }}
+          {{ languages.SETTINGS_MODEL_BATCH_COUNT }}
         </Label>
-        <Slider
-          v-model="imageGeneration.batchSize"
-          :min="1"
-          :max="20"
-          :step="1"
-          :disabled="!modifiable('batchSize')"
-        />
+        <div class="flex items-center gap-2">
+          <Slider
+            v-model="imageGeneration.batchSize"
+            :min="1"
+            :max="20"
+            :step="1"
+            :disabled="!modifiable('batchSize')"
+          />
+          <Input
+            type="number"
+            v-model.number="imageGeneration.batchSize"
+            class="w-20"
+            :disabled="!modifiable('batchSize')"
+          />
+        </div>
       </div>
 
       <div v-if="modifiableOrDisplayed('negativePrompt')" class="flex flex-col gap-2">
@@ -118,6 +134,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/aipgInput'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'

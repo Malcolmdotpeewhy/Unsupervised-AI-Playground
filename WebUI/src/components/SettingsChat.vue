@@ -66,10 +66,16 @@
           />
         </div>
         <div class="grid grid-cols-[120px_1fr] items-center gap-4">
-          <Label class="whitespace-nowrap"
-            >Temperature: {{ textInference.temperature.toFixed(1) }}</Label
-          >
-          <Slider v-model="textInference.temperature" :min="0" :max="2" :step="0.1" />
+          <Label class="whitespace-nowrap">Temperature</Label>
+          <div class="flex items-center gap-2">
+            <Slider v-model="textInference.temperature" :min="0" :max="2" :step="0.1" />
+            <Input
+              type="number"
+              v-model.number="textInference.temperature"
+              class="w-20"
+              step="0.1"
+            />
+          </div>
         </div>
         <div
           v-if="textInference.contextSizeSettingSupported"

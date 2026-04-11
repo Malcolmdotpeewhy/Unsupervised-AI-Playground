@@ -30,7 +30,10 @@
       </div>
       <div class="flex items-center gap-2">
         <Slider v-model="brushSize" :min="10" :max="100" :step="5" class="w-16" />
-        <span class="text-sm text-foreground/60 w-12">{{ brushSize }}px</span>
+        <div class="flex items-center gap-1">
+          <Input type="number" v-model.number="brushSize" class="w-20" />
+          <span class="text-sm text-foreground/60">px</span>
+        </div>
       </div>
       <button
         class="px-3 py-1 rounded border bg-background text-foreground border-border hover:bg-muted"
@@ -126,6 +129,7 @@
 
 <script setup lang="ts">
 import { computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { Input } from '@/components/ui/aipgInput'
 import Slider from './ui/slider/Slider.vue'
 import { NoSymbolIcon, PaintBrushIcon, TrashIcon } from '@heroicons/vue/24/outline'
 
