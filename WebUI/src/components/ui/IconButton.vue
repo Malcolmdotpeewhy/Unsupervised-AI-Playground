@@ -16,7 +16,7 @@ defineEmits<{
     <Tooltip>
       <TooltipTrigger as-child>
         <button
-          class="bg-muted rounded-xs w-6 h-6 flex items-center justify-center"
+          class="bg-muted rounded-xs w-6 h-6 flex items-center justify-center focus-visible:ring-2 focus:outline-none focus-visible:ring-primary"
           :aria-label="tooltip"
           @click="$emit('click')"
         >
